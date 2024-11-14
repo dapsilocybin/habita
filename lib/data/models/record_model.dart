@@ -1,1 +1,3 @@
-class RecordModel {}
+class RecordModel {
+    
+}
