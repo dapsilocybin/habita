@@ -8,30 +8,9 @@ class HabitModel {
   final bool isPublic;
   final int totalMembers;
   final int totalRecords;
-  final String frequency;
+  final String frequencyId;
   final String categoryId;
   final String creatorId;
-  final int numberOfmembers;
-  final int numberOfRecords;
 
-  final List<String> tags;
-  final List<int> memberIds;
-
-  final DateTime startDate;
-
-  HabitModel(
-      {required this.id,
-      required this.title,
-      required this.description,
-      required this.category,
-      required this.creatorId,
-      required this.isPublic,
-      required this.numberOfmembers,
-      required this.numberOfRecords,
-      required this.stars,
-      required this.tags,
-      required this.memberIds,
-      required this.goal,
-      required this.frequency,
-      required this.startDate});
+  HabitModel({required this.id, required this.createdAt, required this.title, required this.description, required this.stars, required this.goal, required this.isPublic, required this.totalMembers, required this.totalRecords, required this.frequencyId, required this.categoryId, required this.creatorId});
 }
