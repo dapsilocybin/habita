@@ -11,7 +11,6 @@ class HabitModel {
   final String frequency;
   final String categoryId;
   final String creatorId;
-
   final int numberOfmembers;
   final int numberOfRecords;
 
