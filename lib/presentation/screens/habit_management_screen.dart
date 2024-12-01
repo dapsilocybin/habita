@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 class HabitManagementPage extends StatelessWidget {
-  final List<String> habits = [
-    "Read a book", "Exercise", "Meditate", "Drink Water", "Write Journal"
-  ];
+  final List<String> habits = ["Reading", "Exercise", "Meditation", "Hydration", "Journaling"];
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +62,7 @@ class HabitManagementPage extends StatelessWidget {
             ),
             SizedBox(height: 8),
 
-            // Habit Grid/List Section
+            // Habit List Section
             Expanded(
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -95,56 +93,66 @@ class HabitCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: colorScheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Habit Image Placeholder
-            Container(
-              height: 80,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
+    return GestureDetector(
+      onTap: () {
+        // Navigate to specific habit page
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: colorScheme.surface,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Habit Image Placeholder
+              Container(
+                height: 80,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text("Habit Image", style: TextStyle(color: colorScheme.onPrimaryContainer)),
+                ),
               ),
-              child: Center(
-                child: Text("Habit Image", style: TextStyle(color: colorScheme.onPrimaryContainer)),
+              SizedBox(height: 8),
+
+              // Habit Category Icon and Title
+              Row(
+                children: [
+                  Icon(Icons.category, color: colorScheme.primary, size: 18), // Habit category icon
+                  SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      habitName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 8),
+              SizedBox(height: 8),
 
-            // Habit Name
-            Text(
-              habitName,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
+              // Social Rating and Records Info
+              Row(
+                children: [
+                  Icon(Icons.star, color: colorScheme.secondary, size: 18),
+                  Text("4.5", style: TextStyle(color: colorScheme.onSurface)), // Placeholder for stars
+                  Spacer(),
+                  Text("12 records", style: TextStyle(color: colorScheme.onSurface)),
+                ],
               ),
-            ),
-            SizedBox(height: 8),
+              SizedBox(height: 4),
 
-            // Progress Indicator
-            LinearProgressIndicator(
-              value: 0.5, // Placeholder value for progress
-              backgroundColor: colorScheme.surfaceVariant,
-              color: colorScheme.primary,
-            ),
-            SizedBox(height: 4),
-
-            // Action Icons (optional)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Icon(Icons.check_circle, color: colorScheme.primary, size: 20),
-                SizedBox(width: 8),
-                Icon(Icons.notifications, color: colorScheme.onSurfaceVariant, size: 20),
-              ],
-            ),
-          ],
+              // Habit Creator and Total Record Count
+              Text("Created by: user123", style: TextStyle(color: colorScheme.onSurface.withOpacity(0.6), fontSize: 12)),
+              Text("Total: 58 records", style: TextStyle(color: colorScheme.onSurface.withOpacity(0.6), fontSize: 12)),
+            ],
+          ),
         ),
       ),
     );
