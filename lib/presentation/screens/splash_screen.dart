@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:habita/routing.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -13,7 +12,7 @@ class SplashScreen extends StatelessWidget {
       Duration(seconds: 3),
     ).then(
       (value) {
-        context.goNamed("home");
+        context.goNamed("forget-password");
       },
     );
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:habita/presentation/screens/auth/forget_password_screen.dart';
+import 'package:habita/presentation/screens/auth/login_screen.dart';
 import 'package:habita/presentation/screens/home_screen.dart';
 import 'package:habita/presentation/screens/splash_screen.dart';
 
@@ -14,7 +16,12 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/login',
       name: 'login',
-      builder: (context, state) => Container(),
+      builder: (context, state) => LoginScreen(),
+    ),
+    GoRoute(
+      path: '/forget-password',
+      name: 'forget-password',
+      builder: (context, state) => ForgetPasswordScreen(),
     ),
     GoRoute(
       path: '/home',
