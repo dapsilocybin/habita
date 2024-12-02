@@ -1,12 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../data/repositories/habit_repository.dart';
 import 'habit_event.dart';
 import 'habit_state.dart';
-import 'habit_repository.dart'; // Replace with the path to your repository
+
 
 class HabitBloc extends Bloc<HabitEvent, HabitState> {
   final HabitRepository repository;
 
-  HabitBloc(this.repository) : super(const HabitInitialState()) {
+  HabitBloc(this.repository) : super(HabitInitialState()) {
     // Event handling
     on<LoadHabits>(_onLoadHabits);
     on<AddHabit>(_onAddHabit);

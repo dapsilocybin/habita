@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../data/models/habit_model.dart';
 
 abstract class HabitEvent extends Equatable {
   @override
@@ -10,7 +11,7 @@ class LoadHabits extends HabitEvent {}
 
 // Event to add a new habit
 class AddHabit extends HabitEvent {
-  final Habit habit;
+  final HabitModel habit;
 
   AddHabit(this.habit);
 

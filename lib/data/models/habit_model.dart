@@ -20,12 +20,14 @@ class HabitModel {
       'created_at': createdAt,
       'title': title,
       'description': description,
-      'stars': starts,
+      'stars': stars,
       'goal': goal,
       'is_public': isPublic,
       'total_members': totalMembers,
       'total_records': totalRecords,
       'creator_id': creatorId,
+      'frequency_id': frequencyId,
+      'category_id': categoryId
     };
   }
 
@@ -41,6 +43,8 @@ class HabitModel {
       totalMembers: data['total_members'] as int,
       totalRecords: data['total_records'] as int,
       creatorId: data['creator_id'] as String,
+      frequencyId: data['frequency_id'] as String,
+      categoryId: data['category_id'] as String,
     );
   }
   

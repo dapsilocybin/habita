@@ -1,8 +1,9 @@
 import 'package:equatable/equatable.dart';
-import 'habit.dart'; // Replace with the path to your Habit model
+import 'package:habita/data/models/habit_model.dart';
+
 
 class HabitState extends Equatable {
-  final List<Habit> habits;
+  final List<HabitModel> habits;
   final bool isLoading;
   final String? error;
 
@@ -13,7 +14,7 @@ class HabitState extends Equatable {
   });
 
   HabitState copyWith({
-    List<Habit>? habits,
+    List<HabitModel>? habits,
     bool? isLoading,
     String? error,
   }) {
@@ -30,16 +31,16 @@ class HabitState extends Equatable {
 
 // Initial state
 class HabitInitialState extends HabitState {
-  const HabitInitialState() : super(habits: [], isLoading: false);
+  HabitInitialState() : super(habits: [], isLoading: false);
 }
 
 // Loading state
 class HabitLoadingState extends HabitState {
-  const HabitLoadingState() : super(habits: [], isLoading: true);
+  HabitLoadingState() : super(habits: [], isLoading: true);
 }
 
 // Error state
 class HabitErrorState extends HabitState {
-  const HabitErrorState(String error)
+  HabitErrorState(String error)
       : super(habits: [], isLoading: false, error: error);
 }
