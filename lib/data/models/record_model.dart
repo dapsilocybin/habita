@@ -13,26 +13,26 @@ class RecordModel {
    Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'createdAt': createdAt,
+      'created_at': createdAt,
       'caption': caption,
       'picture': picture,
       'location': location,
       'likes': likes,
-      'habitId': habitId,
-      'userId': userId,
+      'habit_id': habitId,
+      'user_id': userId,
     };
   }
 
   static RecordModel fromMap(Map<String, dynamic> data) {
     return RecordModel(
       id: data['id'] as String,
-      createdAt: data['createdAt'] as DateTime,
+      createdAt: data['created_at'] as DateTime,
       caption: data['caption'] as String,
       picture: data['picture'] as String,
       location: data['location'] as String,
       likes: data['likes'] as int,
-      habitId: data['habitId'] as String,
-      userId: data['userId'] as String,
+      habitId: data['habit_id'] as String,
+      userId: data['user_id'] as String,
     );
   }
 }
