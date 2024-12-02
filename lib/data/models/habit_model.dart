@@ -17,30 +17,30 @@ class HabitModel {
    Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'createdAt': createdAt,
+      'created_at': createdAt,
       'title': title,
       'description': description,
       'stars': starts,
       'goal': goal,
-      'isPublic': isPublic,
-      'totalMembers': totalMembers,
-      'totalRecords': totalRecords,
-      'creatorId': creatorId,
+      'is_public': isPublic,
+      'total_members': totalMembers,
+      'total_records': totalRecords,
+      'creator_id': creatorId,
     };
   }
 
   static HabitModel fromMap(Map<String, dynamic> data) {
     return HabitModel(
       id: data['id'] as String,
-      createdAt: data['createdAt'] as DateTime,
+      createdAt: data['created_at'] as DateTime,
       title: data['title'] as String,
       description: data['description'] as String,
       stars: data['stars'] as int,
       goal: data['goal'] as String,
-      isPublic: data['isPublic'] as bool,
-      totalMembers: data['totalMembers'] as int,
-      totalRecords: data['totalRecords'] as int,
-      creatorId: data['creatorId'] as String,
+      isPublic: data['is_public'] as bool,
+      totalMembers: data['total_members'] as int,
+      totalRecords: data['total_records'] as int,
+      creatorId: data['creator_id'] as String,
     );
   }
   
