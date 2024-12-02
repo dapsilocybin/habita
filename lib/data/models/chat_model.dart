@@ -8,16 +8,16 @@ class ChatModel {
    Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'createdAt': createdAt,
-      'habitId': habitId,
+      'created_at': createdAt,
+      'habit_id': habitId,
     };
   }
 
   static ChatModel fromMap(Map<String, dynamic> data) {
     return ChatModel(
       id: data['id'] as String,
-      createdAt: data['createdAt'] as DateTime,
-      habitId: data['habitId'] as String,
+      createdAt: data['created_at'] as DateTime,
+      habitId: data['habit_id'] as String,
     );
   }
 }
