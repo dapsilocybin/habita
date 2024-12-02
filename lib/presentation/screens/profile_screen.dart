@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:habita/presentation/screens/habit_management_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final List<String> userHabits = ["Reading", "Exercise", "Meditation"];
@@ -49,9 +50,7 @@ class ProfileScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, '/habit_detail'),
       child: HabitCard(
-        habitName: userHabits[index].name,
-        lastRecordImage: userHabits[index].lastRecordImage,
-        lastRecordTime: userHabits[index].lastRecordTime,
+        habitName: userHabits[index],
       ),
     );
   },
