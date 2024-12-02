@@ -18,12 +18,12 @@ class UserModel {
       'username': username,
       'email': email,
       'bio': bio,
-      'createdAt': createdAt,
-      'firstName': firstName,
-      'lastName': lastName,
-      'profilePicture': profilePicture,
-      'walletAddress': walletAddress,
-      'authUserId': authUserId,
+      'created_at': createdAt,
+      'first_name': firstName,
+      'last_name': lastName,
+      'profile_picture': profilePicture,
+      'wallet_address': walletAddress,
+      'auth_user_id': authUserId,
     };
   }
 
@@ -33,12 +33,12 @@ class UserModel {
       username: data['username'] as String,
       email: data['email'] as String,
       bio: data['bio'] as String,
-      createdAt: data['createdAt'] as DateTime,
-      firstName: data['firstName'] as String,
-      lastName: data['lastName'] as String,
-      profilePicture: data['profilePicture'] as String,
-      walletAddress: data['walletAddress'] as String,
-      authUserId: data['authUserId'] as String,
+      createdAt: data['created_at'] as DateTime,
+      firstName: data['first_name'] as String,
+      lastName: data['last_name'] as String,
+      profilePicture: data['profile_picture'] as String,
+      walletAddress: data['wallet_address'] as String,
+      authUserId: data['auth_user_id'] as String,
     );
   }
 
