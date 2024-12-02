@@ -10,20 +10,20 @@ class MessageModel {
    Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'createdAt': createdAt,
+      'created_at': createdAt,
       'content': content,
-      'chatId': chatId,
-      'senderId': senderId,
+      'chat_id': chatId,
+      'sender_id': senderId,
     };
   }
 
   static MessageModel fromMap(Map<String, dynamic> data) {
     return MessageModel(
       id: data['id'] as String,
-      createdAt: data['createdAt'] as DateTime,
+      createdAt: data['created_at'] as DateTime,
       content: data['content'] as String,
-      chatId: data['chatId'] as String,
-      senderId: data['senderId'] as String,
+      chatId: data['chat_id'] as String,
+      senderId: data['sender_id'] as String,
     );
   }
   
