@@ -25,7 +25,7 @@ class NotificationModel {
       createdAt: data['createdAt'] as DateTime,
       type: data['type'] as String,
       message: data['message'] as String,
-      isRead: data['isRead'] as String,
+      isRead: data['isRead'] as bool,
       userId: data['userId'] as String,
     );
   }
