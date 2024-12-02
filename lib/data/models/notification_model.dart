@@ -11,22 +11,22 @@ class NotificationModel {
    Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'createdAt': createdAt,
+      'created_at': createdAt,
       'type': type,
       'message': message,
-      'isRead': isRead,
-      'userId': userId,
+      'is_read': isRead,
+      'user_id': userId,
     };
   }
 
   static NotificationModel fromMap(Map<String, dynamic> data) {
     return NotificationModel(
       id: data['id'] as String,
-      createdAt: data['createdAt'] as DateTime,
+      createdAt: data['created_at'] as DateTime,
       type: data['type'] as String,
       message: data['message'] as String,
-      isRead: data['isRead'] as bool,
-      userId: data['userId'] as String,
+      isRead: data['is_read'] as bool,
+      userId: data['user_id'] as String,
     );
   }
   
