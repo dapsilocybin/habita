@@ -10,20 +10,20 @@ class CommentModel {
    Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'createdAt': createdAt,
+      'created_at': createdAt,
       'content': content,
-      'userId': userId,
-      'recordId': recordId,
+      'user_id': userId,
+      'record_id': recordId,
     };
   }
 
   static CommentModel fromMap(Map<String, dynamic> data) {
     return CommentModel(
       id: data['id'] as String,
-      createdAt: data['createdAt'] as DateTime,
+      createdAt: data['created_at'] as DateTime,
       content: data['content'] as String,
-      userId: data['userId'] as String,
-      recordId: data['recordId'] as String,
+      userId: data['user_id'] as String,
+      recordId: data['record_id'] as String,
     );
   }
 
