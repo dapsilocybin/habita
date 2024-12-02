@@ -12,7 +12,7 @@ class SplashScreen extends StatelessWidget {
       Duration(seconds: 3),
     ).then(
       (value) {
-        context.goNamed("forget-password");
+        context.goNamed("wallet");
       },
     );
 

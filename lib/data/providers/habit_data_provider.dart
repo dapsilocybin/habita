@@ -1,5 +1,3 @@
-import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HabitDataProvider {
@@ -15,10 +13,11 @@ class HabitDataProvider {
   }
 
   Future<List<Map<String, dynamic>>> fetchHabits() async {
-    final response = await _client.from('habits').select().call();
-    if (response.error != null) {
-      throw Exception(response.error!.message);
-    }
-    return List<Map<String, dynamic>>.from(response.data ?? []);
+    return [];
+    // final response = await _client.from('habits').select().call();
+    // if (response.error != null) {
+    //   throw Exception(response.error!.message);
+    // }
+    // return List<Map<String, dynamic>>.from(response.data ?? []);
   }
 }

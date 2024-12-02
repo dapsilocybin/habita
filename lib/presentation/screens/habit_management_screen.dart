@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class HabitManagementPage extends StatelessWidget {
+class HabitManagementScreen extends StatelessWidget {
   final List<String> habits = ["Reading", "Exercise", "Meditation", "Hydration", "Journaling"];
 
   @override

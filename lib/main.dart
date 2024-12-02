@@ -5,10 +5,13 @@ import 'package:habita/theme/theme_helpers.dart';
 
 import 'data/repositories/habit_repository.dart';
 import 'logic/habit/habit_bloc.dart';
-import 'logic/habit/habit_event.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+class myBloc extends Cubit<int> {
+  myBloc() : super(0);
 }
 
 class MyApp extends StatelessWidget {
@@ -18,10 +21,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<HabitBloc>(
-          create: (context) => HabitBloc(context.read<HabitRepository>())
-        ..add(LoadHabits()),
-        ),
+        // BlocProvider<HabitBloc>(
+        //     create: (context) => HabitBloc(context.read<HabitRepository>())
+        //     // ..add(LoadHabits()),
+        //     ),
+        BlocProvider<myBloc>(
+          create: (context) => myBloc(),
+        )
       ],
       child: MaterialApp.router(
         title: 'Flutter Demo',
