@@ -7,10 +7,6 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyBloc extends Cubit<int> {
-  MyBloc() : super(0);
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -18,8 +14,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<MyBloc>(
-          create: (context) => MyBloc(),
+        BlocProvider<HabitBloc>(
+          create: (context) => HabitBloc(context.read<HabitRepository>())
+        ..add(LoadHabits()),
         ),
       ],
       child: MaterialApp.router(
