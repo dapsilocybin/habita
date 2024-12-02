@@ -10,20 +10,20 @@ class TransactionModel {
    Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'createdAt': createdAt,
+      'created_at': createdAt,
       'amount': amount,
-      'fromUserId': fromUserId,
-      'toUserId': toUserId,
+      'from_user_id': fromUserId,
+      'to_user_id': toUserId,
     };
   }
 
   static TransactionModel fromMap(Map<String, dynamic> data) {
     return TransactionModel(
       id: data['id'] as String,
-      createdAt: data['createdAt'] as DateTime,
+      createdAt: data['created_at'] as DateTime,
       amount: data['amount'] as String,
-      fromUserId: data['fromUserId'] as String,
-      toUserId: data['toUserId'] as String,      
+      fromUserId: data['from_user_id'] as String,
+      toUserId: data['to_user_id'] as String,      
     );
   }
 }
