@@ -10,20 +10,20 @@ class MedalModel {
    Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'createdAt': createdAt,
+      'created_at': createdAt,
       'title': title,
       'description': description,
-      'habitId': habitId,
+      'habit_id': habitId,
     };
   }
 
   static MedalModel fromMap(Map<String, dynamic> data) {
     return MedalModel(
       id: data['id'] as String,
-      createdAt: data['createdAt'] as DateTime,
+      createdAt: data['created_at'] as DateTime,
       title: data['title'] as String,
       description: data['description'] as String,
-      habitId: data['habitId'] as String,
+      habitId: data['habit_id'] as String,
     );
   }
   
