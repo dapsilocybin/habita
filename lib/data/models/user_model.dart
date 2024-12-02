@@ -35,7 +35,7 @@ class UserModel {
       bio: data['bio'] as String,
       createdAt: data['createdAt'] as DateTime,
       firstName: data['firstName'] as String,
-      lastName: data['lastName'] as lastName,
+      lastName: data['lastName'] as String,
       profilePicture: data['profilePicture'] as String,
       walletAddress: data['walletAddress'] as String,
       authUserId: data['authUserId'] as String,
