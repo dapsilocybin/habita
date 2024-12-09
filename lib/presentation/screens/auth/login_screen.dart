@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -71,6 +72,7 @@ class LoginScreen extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     // Navigate to Forgotten Password Page
+                    context.goNamed("forget-password");
                   },
                   child: Text(
                     "Forgotten password?",
@@ -94,6 +96,7 @@ class LoginScreen extends StatelessWidget {
                     TextButton(
                       onPressed: () {
                         // Navigate to Sign Up Page
+                        context.goNamed("sign-up");
                       },
                       child: Text("Sign Up"),
                       style: TextButton.styleFrom(

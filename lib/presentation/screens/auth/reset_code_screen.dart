@@ -7,7 +7,8 @@ class ResetCodeScreen extends StatefulWidget {
 
 class _ResetCodeScreenState extends State<ResetCodeScreen> {
   bool showError = false; // Controls error visibility
-  final List<TextEditingController> controllers = List.generate(5, (_) => TextEditingController());
+  final List<TextEditingController> controllers =
+      List.generate(5, (_) => TextEditingController());
   final List<FocusNode> focusNodes = List.generate(5, (_) => FocusNode());
 
   void showErrorContainer() {
@@ -51,69 +52,92 @@ class _ResetCodeScreenState extends State<ResetCodeScreen> {
           Center(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Instructional Text
-                  Text(
-                    "Enter the 5-digit code sent to your email.",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: colorScheme.onBackground.withOpacity(0.8),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      "Reset Code",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: colorScheme.primary,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold),
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 20),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Icon(
+                      Icons.restore_page_sharp,
+                      size: 64,
+                      color: colorScheme.primary,
+                    ),
+                    SizedBox(
+                      height: 70,
+                    ),
 
-                  // Digit Input Fields (Row of 5 TextFields)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: SizedBox(
-                          width: 50,
-                          child: TextField(
-                            controller: controllers[index],
-                            focusNode: focusNodes[index],
-                            keyboardType: TextInputType.number,
-                            maxLength: 1,
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration(
-                              counterText: "", // Remove length counter
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
+                    // Instructional Text
+                    Text(
+                      "Enter the 5-digit code sent to your email.",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: colorScheme.onBackground.withOpacity(0.8),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 20),
+
+                    // Digit Input Fields (Row of 5 TextFields)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(5, (index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: SizedBox(
+                            width: 50,
+                            child: TextField(
+                              controller: controllers[index],
+                              focusNode: focusNodes[index],
+                              keyboardType: TextInputType.number,
+                              maxLength: 1,
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                counterText: "", // Remove length counter
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                filled: true,
+                                fillColor: colorScheme.primaryContainer,
                               ),
-                              filled: true,
-                              fillColor: colorScheme.primaryContainer,
+                              style: TextStyle(
+                                color: colorScheme.onPrimaryContainer,
+                                fontSize: 24,
+                              ),
+                              onChanged: (value) {
+                                if (value.isNotEmpty && index < 4) {
+                                  FocusScope.of(context)
+                                      .requestFocus(focusNodes[index + 1]);
+                                }
+                              },
                             ),
-                            style: TextStyle(
-                              color: colorScheme.onPrimaryContainer,
-                              fontSize: 24,
-                            ),
-                            onChanged: (value) {
-                              if (value.isNotEmpty && index < 4) {
-                                FocusScope.of(context).requestFocus(focusNodes[index + 1]);
-                              }
-                            },
                           ),
-                        ),
-                      );
-                    }),
-                  ),
-                  SizedBox(height: 24),
-
-                  // Submit Button
-                  ElevatedButton(
-                    onPressed: submitCode,
-                    child: Text("Submit"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary,
-                      foregroundColor: colorScheme.onPrimary,
+                        );
+                      }),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 24),
+
+                    // Submit Button
+                    ElevatedButton(
+                      onPressed: submitCode,
+                      child: Text("Submit"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -143,7 +167,8 @@ class _ResetCodeScreenState extends State<ResetCodeScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.close, color: colorScheme.onErrorContainer),
+                      icon: Icon(Icons.close,
+                          color: colorScheme.onErrorContainer),
                       onPressed: () {
                         setState(() {
                           showError = false;

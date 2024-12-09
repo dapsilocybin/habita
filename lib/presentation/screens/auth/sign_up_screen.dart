@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:habita/presentation/screens/auth/login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -13,7 +15,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   void showErrorContainer() {
     setState(() {
@@ -58,166 +61,174 @@ class _SignUpScreenState extends State<SignUpScreen> {
               padding: const EdgeInsets.all(24.0),
               child: Form(
                 key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Page Icon
-                    Icon(
-                      Icons.person_add,
-                      size: 64,
-                      color: colorScheme.primary,
-                    ),
-                    SizedBox(height: 16),
-
-                    // Page Title
-                    Text(
-                      "Sign Up",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Page Icon
+                      Icon(
+                        Icons.person_add,
+                        size: 64,
                         color: colorScheme.primary,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 24),
+                      SizedBox(height: 16),
 
-                    // Username Field
-                    TextFormField(
-                      controller: usernameController,
-                      decoration: InputDecoration(
-                        labelText: "Username",
-                        border: OutlineInputBorder(),
+                      // Page Title
+                      Text(
+                        "Sign Up",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please enter a username";
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 16),
+                      SizedBox(height: 24),
 
-                    // Email Field
-                    TextFormField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        labelText: "Email Address",
-                        border: OutlineInputBorder(),
+                      // Username Field
+                      TextFormField(
+                        controller: usernameController,
+                        decoration: InputDecoration(
+                          labelText: "Username",
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter a username";
+                          }
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please enter an email";
-                        }
-                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                          return "Please enter a valid email";
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 16),
+                      SizedBox(height: 16),
 
-                    // Password Field
-                    TextFormField(
-                      controller: passwordController,
-                      obscureText: !_passwordVisible,
-                      decoration: InputDecoration(
-                        labelText: "Password",
-                        border: OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                      // Email Field
+                      TextFormField(
+                        controller: emailController,
+                        decoration: InputDecoration(
+                          labelText: "Email Address",
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter an email";
+                          }
+                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                            return "Please enter a valid email";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16),
+
+                      // Password Field
+                      TextFormField(
+                        controller: passwordController,
+                        obscureText: !_passwordVisible,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          border: OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            },
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _passwordVisible = !_passwordVisible;
-                            });
-                          },
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter a password";
+                          }
+                          if (value.length < 6) {
+                            return "Password must be at least 6 characters";
+                          }
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please enter a password";
-                        }
-                        if (value.length < 6) {
-                          return "Password must be at least 6 characters";
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 16),
+                      SizedBox(height: 16),
 
-                    // Confirm Password Field
-                    TextFormField(
-                      controller: confirmPasswordController,
-                      obscureText: !_passwordVisible,
-                      decoration: InputDecoration(
-                        labelText: "Confirm Password",
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value != passwordController.text) {
-                          return "Passwords do not match";
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 24),
-
-                    // Agree to Terms Checkbox
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _agreeToTerms,
-                          onChanged: (value) {
-                            setState(() {
-                              _agreeToTerms = value!;
-                            });
-                          },
+                      // Confirm Password Field
+                      TextFormField(
+                        controller: confirmPasswordController,
+                        obscureText: !_passwordVisible,
+                        decoration: InputDecoration(
+                          labelText: "Confirm Password",
+                          border: OutlineInputBorder(),
                         ),
-                        Expanded(
-                          child: Text(
-                            "I agree to the terms of service",
-                            style: TextStyle(
-                              color: colorScheme.onBackground.withOpacity(0.8),
+                        validator: (value) {
+                          if (value != passwordController.text) {
+                            return "Passwords do not match";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 24),
+
+                      // Agree to Terms Checkbox
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _agreeToTerms,
+                            onChanged: (value) {
+                              setState(() {
+                                _agreeToTerms = value!;
+                              });
+                            },
+                          ),
+                          Expanded(
+                            child: Text(
+                              "I agree to the terms of service",
+                              style: TextStyle(
+                                color:
+                                    colorScheme.onBackground.withOpacity(0.8),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16),
-
-                    // Submit Button
-                    ElevatedButton(
-                      onPressed: submitSignUp,
-                      child: Text("Sign Up"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 24),
+                      SizedBox(height: 16),
 
-                    // Login Prompt
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Already have an account?",
-                          style: TextStyle(color: colorScheme.onBackground.withOpacity(0.8)),
+                      // Submit Button
+                      ElevatedButton(
+                        onPressed: submitSignUp,
+                        child: Text("Sign Up"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
                         ),
-                        TextButton(
-                          onPressed: () {
-                            // Navigate to Login Page
-                          },
-                          child: Text("Login"),
-                          style: TextButton.styleFrom(
-                            foregroundColor: colorScheme.secondary,
+                      ),
+                      SizedBox(height: 24),
+
+                      // Login Prompt
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Already have an account?",
+                            style: TextStyle(
+                                color:
+                                    colorScheme.onBackground.withOpacity(0.8)),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          TextButton(
+                            onPressed: () {
+                              // Navigate to Login Page
+                              context.goNamed("login");
+                            },
+                            child: Text("Login"),
+                            style: TextButton.styleFrom(
+                              foregroundColor: colorScheme.secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -248,7 +259,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.close, color: colorScheme.onErrorContainer),
+                      icon: Icon(Icons.close,
+                          color: colorScheme.onErrorContainer),
                       onPressed: () {
                         setState(() {
                           showError = false;

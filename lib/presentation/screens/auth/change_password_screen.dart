@@ -9,7 +9,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   bool showError = false; // Controls error visibility
   final _formKey = GlobalKey<FormState>();
   final TextEditingController newPasswordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   bool _passwordVisible = false; // Controls password visibility
 
   void showErrorContainer() {
@@ -53,97 +54,103 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               padding: const EdgeInsets.all(24.0),
               child: Form(
                 key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Page Icon
-                    Icon(
-                      Icons.lock_reset,
-                      size: 64,
-                      color: colorScheme.primary,
-                    ),
-                    SizedBox(height: 16),
-
-                    // Page Title
-                    Text(
-                      "Change Password",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Page Icon
+                      Icon(
+                        Icons.lock_reset,
+                        size: 64,
                         color: colorScheme.primary,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 24),
+                      SizedBox(height: 16),
 
-                    // New Password Field
-                    TextFormField(
-                      controller: newPasswordController,
-                      obscureText: !_passwordVisible,
-                      decoration: InputDecoration(
-                        labelText: "New Password",
-                        border: OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                      // Page Title
+                      Text(
+                        "Change Password",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 70),
+
+                      // New Password Field
+                      TextFormField(
+                        controller: newPasswordController,
+                        obscureText: !_passwordVisible,
+                        decoration: InputDecoration(
+                          labelText: "New Password",
+                          border: OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            },
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _passwordVisible = !_passwordVisible;
-                            });
-                          },
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter a password";
+                          }
+                          if (value.length < 6) {
+                            return "Password must be at least 6 characters";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16),
+
+                      // Confirm Password Field
+                      TextFormField(
+                        controller: confirmPasswordController,
+                        obscureText: !_passwordVisible,
+                        decoration: InputDecoration(
+                          labelText: "Confirm Password",
+                          border: OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            },
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value != newPasswordController.text) {
+                            return "Passwords do not match";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 24),
+
+                      // Submit Button
+                      ElevatedButton(
+                        onPressed: submitPasswordChange,
+                        child: Text("Submit"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please enter a password";
-                        }
-                        if (value.length < 6) {
-                          return "Password must be at least 6 characters";
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 16),
-
-                    // Confirm Password Field
-                    TextFormField(
-                      controller: confirmPasswordController,
-                      obscureText: !_passwordVisible,
-                      decoration: InputDecoration(
-                        labelText: "Confirm Password",
-                        border: OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _passwordVisible ? Icons.visibility : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _passwordVisible = !_passwordVisible;
-                            });
-                          },
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value != newPasswordController.text) {
-                          return "Passwords do not match";
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 24),
-
-                    // Submit Button
-                    ElevatedButton(
-                      onPressed: submitPasswordChange,
-                      child: Text("Submit"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -174,7 +181,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.close, color: colorScheme.onErrorContainer),
+                      icon: Icon(Icons.close,
+                          color: colorScheme.onErrorContainer),
                       onPressed: () {
                         setState(() {
                           showError = false;

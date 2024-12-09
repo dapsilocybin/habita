@@ -33,44 +33,65 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
           Center(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Instructional Text
-                  Text(
-                    "Enter your registered email to receive a reset code.",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: colorScheme.onBackground.withOpacity(0.8),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      "Forgot Password",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: colorScheme.primary,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold),
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 20),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Icon(
+                      Icons.restore_page_sharp,
+                      size: 64,
+                      color: colorScheme.primary,
+                    ),
+                    SizedBox(
+                      height: 70,
+                    ),
+                    // Instructional Text
+                    Text(
+                      "Enter your registered email to receive a reset code.",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: colorScheme.onBackground.withOpacity(0.8),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 20),
 
-                  // Email Input Field
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: "Email Address",
-                      border: OutlineInputBorder(),
+                    // Email Input Field
+                    TextField(
+                      decoration: InputDecoration(
+                        labelText: "Email Address",
+                        border: OutlineInputBorder(),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 24),
+                    SizedBox(height: 24),
 
-                  // Submit Button
-                  ElevatedButton(
-                    onPressed: () {
-                      // Add reset logic here
-                      // For demonstration, we'll show an error
-                      showErrorContainer();
-                    },
-                    child: Text("Submit"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary,
-                      foregroundColor: colorScheme.onPrimary,
+                    // Submit Button
+                    ElevatedButton(
+                      onPressed: () {
+                        // Add reset logic here
+                        // For demonstration, we'll show an error
+                        showErrorContainer();
+                      },
+                      child: Text("Submit"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -100,7 +121,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.close, color: colorScheme.onErrorContainer),
+                      icon: Icon(Icons.close,
+                          color: colorScheme.onErrorContainer),
                       onPressed: () {
                         setState(() {
                           showError = false;
