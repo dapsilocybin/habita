@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:habita/routing.dart';
 import 'package:habita/theme/theme_helpers.dart';
 
-
 void main() {
   runApp(const MyApp());
 }

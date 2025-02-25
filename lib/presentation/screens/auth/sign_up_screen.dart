@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:habita/presentation/screens/auth/login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
@@ -13,10 +14,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _agreeToTerms = false;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController usernameController = TextEditingController();
+  final FocusNode usernameFocusNode = FocusNode();
+
   final TextEditingController emailController = TextEditingController();
+  final FocusNode emailFocusNode = FocusNode();
+
   final TextEditingController passwordController = TextEditingController();
+  final FocusNode passwordFocusNode = FocusNode();
+
   final TextEditingController confirmPasswordController =
       TextEditingController();
+  final confirmPasswordFocusNode = FocusNode();
 
   void showErrorContainer() {
     setState(() {
@@ -88,7 +96,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                       // Username Field
                       TextFormField(
+                        focusNode: usernameFocusNode,
                         controller: usernameController,
+                        onEditingComplete: () {
+                          FocusScope.of(context).requestFocus(emailFocusNode);
+                        },
                         decoration: InputDecoration(
                           labelText: "Username",
                           border: OutlineInputBorder(),
@@ -104,7 +116,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                       // Email Field
                       TextFormField(
+                        focusNode: emailFocusNode,
                         controller: emailController,
+                        onEditingComplete: () {
+                          FocusScope.of(context)
+                              .requestFocus(passwordFocusNode);
+                        },
                         decoration: InputDecoration(
                           labelText: "Email Address",
                           border: OutlineInputBorder(),
@@ -123,7 +140,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                       // Password Field
                       TextFormField(
+                        focusNode: passwordFocusNode,
                         controller: passwordController,
+                        onEditingComplete: () {
+                          FocusScope.of(context)
+                              .requestFocus(confirmPasswordFocusNode);
+                        },
                         obscureText: !_passwordVisible,
                         decoration: InputDecoration(
                           labelText: "Password",
@@ -155,6 +177,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                       // Confirm Password Field
                       TextFormField(
+                        focusNode: confirmPasswordFocusNode,
                         controller: confirmPasswordController,
                         obscureText: !_passwordVisible,
                         decoration: InputDecoration(
