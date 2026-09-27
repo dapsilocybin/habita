@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../habit_detail/habit_detail_page.dart';
 
 class HabitTreePage extends StatefulWidget {
   const HabitTreePage({super.key});
@@ -313,15 +314,14 @@ class _HabitTreePageState extends State<HabitTreePage> {
   }
 
   void _openHabit(_HabitCategory habit) {
-    // TODO: Navigate to HabitDetailPage.
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'عادت «${habit.title}» انتخاب شد.',
-        ),
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => HabitDetailPage(
+        habitName: habit.title,
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
