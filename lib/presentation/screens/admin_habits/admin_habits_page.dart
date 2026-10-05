@@ -63,12 +63,7 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
     ),
   ];
 
-  final List<String> _filters = const [
-    'همه',
-    'فعال',
-    'غیرفعال',
-    'ویژه',
-  ];
+  final List<String> _filters = const ['همه', 'فعال', 'غیرفعال', 'ویژه'];
 
   @override
   void initState() {
@@ -130,13 +125,9 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
                 : ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                     itemCount: _filteredHabits.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: 12),
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
-                      return _buildHabitCard(
-                        context,
-                        _filteredHabits[index],
-                      );
+                      return _buildHabitCard(context, _filteredHabits[index]);
                     },
                   ),
           ),
@@ -149,12 +140,9 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final active =
-        _habits.where((habit) => habit.status == 'فعال').length;
-    final inactive =
-        _habits.where((habit) => habit.status == 'غیرفعال').length;
-    final featured =
-        _habits.where((habit) => habit.isFeatured).length;
+    final active = _habits.where((habit) => habit.status == 'فعال').length;
+    final inactive = _habits.where((habit) => habit.status == 'غیرفعال').length;
+    final featured = _habits.where((habit) => habit.isFeatured).length;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -210,10 +198,7 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 6,
-        vertical: 12,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
@@ -232,11 +217,7 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: colorScheme.primary,
-          ),
+          Icon(icon, size: 20, color: colorScheme.primary),
           const SizedBox(height: 5),
           Text(
             value,
@@ -280,10 +261,7 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
     return SizedBox(
       height: 58,
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         scrollDirection: Axis.horizontal,
         itemCount: _filters.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
@@ -304,10 +282,7 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
     );
   }
 
-  Widget _buildHabitCard(
-    BuildContext context,
-    _AdminHabit habit,
-  ) {
+  Widget _buildHabitCard(BuildContext context, _AdminHabit habit) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -357,8 +332,7 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
                             child: Text(
                               habit.name,
                               overflow: TextOverflow.ellipsis,
-                              style:
-                                  theme.textTheme.titleMedium?.copyWith(
+                              style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -387,29 +361,16 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
                 ),
                 PopupMenuButton<String>(
                   onSelected: (value) {
-                    _handleHabitAction(
-                      context,
-                      habit,
-                      value,
-                    );
+                    _handleHabitAction(context, habit, value);
                   },
                   itemBuilder: (_) => const [
-                    PopupMenuItem(
-                      value: 'edit',
-                      child: Text('ویرایش'),
-                    ),
+                    PopupMenuItem(value: 'edit', child: Text('ویرایش')),
                     PopupMenuItem(
                       value: 'featured',
                       child: Text('تغییر وضعیت ویژه'),
                     ),
-                    PopupMenuItem(
-                      value: 'toggle',
-                      child: Text('تغییر وضعیت'),
-                    ),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: Text('حذف'),
-                    ),
+                    PopupMenuItem(value: 'toggle', child: Text('تغییر وضعیت')),
+                    PopupMenuItem(value: 'delete', child: Text('حذف')),
                   ],
                 ),
               ],
@@ -462,11 +423,7 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
 
     return Column(
       children: [
-        Icon(
-          icon,
-          size: 19,
-          color: colorScheme.primary,
-        ),
+        Icon(icon, size: 19, color: colorScheme.primary),
         const SizedBox(height: 4),
         Text(
           value,
@@ -567,9 +524,9 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
               children: [
                 Text(
                   'افزودن عادت جدید',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
                 TextField(
@@ -583,9 +540,7 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
                 TextField(
                   controller: descriptionController,
                   maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'توضیحات',
-                  ),
+                  decoration: const InputDecoration(labelText: 'توضیحات'),
                 ),
                 const SizedBox(height: 14),
                 const ListTile(
@@ -604,9 +559,7 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
 
                       ScaffoldMessenger.of(this.context).showSnackBar(
                         const SnackBar(
-                          content: Text(
-                            'عادت جدید ایجاد شد (نسخه نمایشی).',
-                          ),
+                          content: Text('عادت جدید ایجاد شد (نسخه نمایشی).'),
                         ),
                       );
                     },
@@ -642,16 +595,14 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
             children: [
               Text(
                 'ویرایش عادت',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               TextField(
                 controller: controller,
-                decoration: const InputDecoration(
-                  labelText: 'نام عادت',
-                ),
+                decoration: const InputDecoration(labelText: 'نام عادت'),
               ),
               const SizedBox(height: 14),
               ListTile(
@@ -669,9 +620,7 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
 
                     ScaffoldMessenger.of(this.context).showSnackBar(
                       const SnackBar(
-                        content: Text(
-                          'اطلاعات عادت ذخیره شد (نسخه نمایشی).',
-                        ),
+                        content: Text('اطلاعات عادت ذخیره شد (نسخه نمایشی).'),
                       ),
                     );
                   },
@@ -735,11 +684,7 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'وضعیت عادت به «$newStatus» تغییر کرد.',
-        ),
-      ),
+      SnackBar(content: Text('وضعیت عادت به «$newStatus» تغییر کرد.')),
     );
   }
 
@@ -767,11 +712,9 @@ class _AdminHabitsPageState extends State<AdminHabitsPage> {
                   _habits.remove(habit);
                 });
 
-                ScaffoldMessenger.of(this.context).showSnackBar(
-                  const SnackBar(
-                    content: Text('عادت حذف شد.'),
-                  ),
-                );
+                ScaffoldMessenger.of(
+                  this.context,
+                ).showSnackBar(const SnackBar(content: Text('عادت حذف شد.')));
               },
               child: const Text('حذف'),
             ),
