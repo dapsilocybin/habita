@@ -55,7 +55,7 @@ class TransactionHistoryPage extends StatelessWidget {
         amount: -200,
         date: '۲۹ شهریور، ۱۱:۰۵',
         type: _TransactionType.spent,
-        icon: Icons.habit_rounded,
+        icon: Icons.star_rounded,
       ),
       const _Transaction(
         title: 'پاداش چالش',
