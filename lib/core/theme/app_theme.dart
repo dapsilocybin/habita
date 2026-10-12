@@ -14,7 +14,7 @@ class AppTheme {
     return ThemeData(
       colorScheme: colorScheme,
       useMaterial3: true,
-      fontFamily: 'Poppins',
+      fontFamily: 'Vazirmatn',
       scaffoldBackgroundColor: const Color(0xFFEFF3FA),
 
       // 🌤️ General style — soft and clean
@@ -37,23 +37,22 @@ class AppTheme {
         elevation: 6,
         shadowColor: Colors.black12,
         margin: const EdgeInsets.all(8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
 
       // 🧊 Input fields (TextFormField, etc.)
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFFEFF3FA),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
         ),
-        hintStyle: TextStyle(
-          color: colorScheme.onSurface.withOpacity(0.5),
-        ),
+        hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.5)),
         prefixIconColor: colorScheme.primary.withOpacity(0.7),
       ),
 
@@ -75,9 +74,7 @@ class AppTheme {
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
         elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
 
       // 🧾 Texts
@@ -103,9 +100,7 @@ class AppTheme {
       ),
 
       // ⚙️ Neomorphic touch for containers (via default box shadows)
-      extensions: <ThemeExtension<dynamic>>[
-        NeomorphismStyleExtension.light(),
-      ],
+      extensions: <ThemeExtension<dynamic>>[NeomorphismStyleExtension.light()],
     );
   }
 
@@ -119,7 +114,7 @@ class AppTheme {
     return ThemeData(
       colorScheme: colorScheme,
       useMaterial3: true,
-      fontFamily: 'Poppins',
+      fontFamily: 'Vazirmatn',
       scaffoldBackgroundColor: const Color(0xFF181A1F),
 
       cardTheme: CardThemeData(
@@ -127,9 +122,7 @@ class AppTheme {
         elevation: 8,
         shadowColor: Colors.black54,
         margin: const EdgeInsets.all(8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -147,14 +140,15 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF1E2228),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
         ),
-        hintStyle: TextStyle(
-          color: colorScheme.onSurface.withOpacity(0.5),
-        ),
+        hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.5)),
         prefixIconColor: colorScheme.primary.withOpacity(0.7),
       ),
 
@@ -174,9 +168,7 @@ class AppTheme {
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
         elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
 
       textTheme: TextTheme(
@@ -191,16 +183,15 @@ class AppTheme {
         ),
       ),
 
-      extensions: <ThemeExtension<dynamic>>[
-        NeomorphismStyleExtension.dark(),
-      ],
+      extensions: <ThemeExtension<dynamic>>[NeomorphismStyleExtension.dark()],
     );
   }
 }
 
 /// 🌟 Custom Theme Extension for neomorphic container shadows
 @immutable
-class NeomorphismStyleExtension extends ThemeExtension<NeomorphismStyleExtension> {
+class NeomorphismStyleExtension
+    extends ThemeExtension<NeomorphismStyleExtension> {
   final List<BoxShadow> shadows;
   final Color backgroundColor;
 
@@ -258,7 +249,9 @@ class NeomorphismStyleExtension extends ThemeExtension<NeomorphismStyleExtension
 
   @override
   NeomorphismStyleExtension lerp(
-      ThemeExtension<NeomorphismStyleExtension>? other, double t) {
+    ThemeExtension<NeomorphismStyleExtension>? other,
+    double t,
+  ) {
     if (other is! NeomorphismStyleExtension) return this;
     return NeomorphismStyleExtension(
       shadows: other.shadows,
@@ -266,4 +259,3 @@ class NeomorphismStyleExtension extends ThemeExtension<NeomorphismStyleExtension
     );
   }
 }
-  
