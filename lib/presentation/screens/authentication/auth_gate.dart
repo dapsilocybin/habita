@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'
-    show Session, Supabase;
+import 'package:habita/presentation/screens/home/home_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show Session, Supabase;
 
 import 'email_entry_page.dart';
 
@@ -21,16 +20,14 @@ class AuthGate extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting &&
             !snapshot.hasData) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
 
         final session = snapshot.data;
 
         if (session != null) {
-          return const HomeDestinationPage();
+          return const HomePage();
         }
 
         return const EmailEntryPage();

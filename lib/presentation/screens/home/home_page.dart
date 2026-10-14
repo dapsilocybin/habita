@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:habita/core/theme/app_theme.dart';
+import 'package:habita/presentation/widgets/habita_bottom_navigation.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({
-    super.key,
-    this.onNavigate,
-  });
+  const HomePage({super.key, this.onNavigate});
 
   /// Indexes: Home = 0, Explore = 1, Add Record = 2,
   /// Habit Tracker = 3, Profile = 4.
@@ -24,6 +22,8 @@ class _HomePageState extends State<HomePage> {
       username: 'علی رضایی',
       handle: '@ali.r',
       habit: 'ورزش روزانه',
+      frequency: 'روزی یک بار',
+      habitRecordCount: 25,
       time: '۲۰ دقیقه پیش',
       caption:
           'امروز هم با اینکه خیلی خسته بودم، تمرینم رو انجام دادم. '
@@ -37,6 +37,8 @@ class _HomePageState extends State<HomePage> {
       username: 'مریم احمدی',
       handle: '@maryam.a',
       habit: 'مطالعه روزانه',
+      frequency: 'روزی دو بار',
+      habitRecordCount: 10,
       time: '۱ ساعت پیش',
       caption:
           'فقط ده صفحه خوندم، ولی به قول خودم عمل کردم. '
@@ -50,11 +52,14 @@ class _HomePageState extends State<HomePage> {
       username: 'امیر محمدی',
       handle: '@amir.m',
       habit: 'خواب منظم',
+      frequency: 'هفته‌ای پنج روز',
+      habitRecordCount: 100,
       time: '۳ ساعت پیش',
       caption:
           'دیشب زودتر گوشی رو کنار گذاشتم و امروز صبح '
-          'با انرژی بیشتری بیدار شدم.',
-      image: 'assets/images/post.jpg',
+          'با انرژی بیشتری بیدار شدم. گاهی همین تغییر کوچیک '
+          'باعث می‌شه روزمون رو بهتر شروع کنیم.',
+      image: null,
       likes: 12,
       comments: 2,
     ),
@@ -89,10 +94,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-
     final neo = theme.extension<NeomorphismStyleExtension>();
 
-    final shadows = neo?.shadows ??
+    final shadows =
+        neo?.shadows ??
         [
           BoxShadow(
             color: colors.shadow.withOpacity(0.10),
@@ -101,103 +106,103 @@ class _HomePageState extends State<HomePage> {
           ),
         ];
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        bottom: false,
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: _buildHeader(theme, shadows),
-            ),
-            SliverToBoxAdapter(
-              child: _buildWelcomeSection(theme),
-            ),
-            SliverToBoxAdapter(
-              child: _buildHabitPrompt(theme, shadows),
-            ),
-            SliverToBoxAdapter(
-              child: _buildFeedHeader(theme),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: SafeArea(
+          bottom: false,
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(child: _buildHeader(theme, shadows)),
+              
+              SliverToBoxAdapter(child: _buildWelcomeSection(theme)),
+              SliverToBoxAdapter(child: _buildHabitPrompt(theme, shadows)),
+              SliverToBoxAdapter(child: _buildFeedHeader(theme)),
+              SliverPadding(
+                padding: const EdgeInsets.only(bottom: 24),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
                     final post = _posts[index];
 
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 18),
-                      child: _PostCard(
-                        post: post,
-                        isLiked: _likedPosts.contains(post.id),
-                        shadows: shadows,
-                        onLike: () {
-                          setState(() {
-                            if (!_likedPosts.add(post.id)) {
-                              _likedPosts.remove(post.id);
-                            }
-                          });
-                        },
-                        onComment: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'بخش دیدگاه‌ها در مرحله بعد اضافه می‌شود.',
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                        onMore: () {
-                          showModalBottomSheet<void>(
-                            context: context,
-                            showDragHandle: true,
-                            builder: (context) {
-                              return SafeArea(
-                                child: ListTile(
-                                  leading: const Icon(
-                                    Icons.flag_outlined,
-                                  ),
-                                  title: const Text('گزارش این محتوا'),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(this.context)
-                                      ..hideCurrentSnackBar()
-                                      ..showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'گزارش محتوا بعداً فعال می‌شود.',
-                                          ),
-                                        ),
-                                      );
-                                  },
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _PostCard(
+                          post: post,
+                          isLiked: _likedPosts.contains(post.id),
+                          onLike: () {
+                            setState(() {
+                              if (!_likedPosts.add(post.id)) {
+                                _likedPosts.remove(post.id);
+                              }
+                            });
+                          },
+                          onComment: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'بخش دیدگاه‌ها در مرحله بعد اضافه می‌شود.',
                                 ),
-                              );
-                            },
-                          );
-                        },
-                      ),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                          onMore: () {
+                            showModalBottomSheet<void>(
+                              context: context,
+                              showDragHandle: true,
+                              builder: (context) {
+                                return Directionality(
+                                  textDirection: TextDirection.rtl,
+                                  child: SafeArea(
+                                    child: ListTile(
+                                      leading: const Icon(Icons.flag_outlined),
+                                      title: const Text('گزارش این محتوا'),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        ScaffoldMessenger.of(this.context)
+                                          ..hideCurrentSnackBar()
+                                          ..showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'گزارش محتوا بعداً فعال می‌شود.',
+                                              ),
+                                            ),
+                                          );
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        if (index < _posts.length - 1)
+                          Divider(
+                            height: 1,
+                            thickness: 1,
+                            indent: 16,
+                            endIndent: 16,
+                            color: colors.outlineVariant.withOpacity(0.65),
+                          ),
+                      ],
                     );
-                  },
-                  childCount: _posts.length,
+                  }, childCount: _posts.length),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      bottomNavigationBar: _buildBottomNavigation(
-        theme,
-        shadows,
+        bottomNavigationBar: HabitaBottomNavigation(
+          selectedIndex: 0,
+          onItemSelected: _handleNavigation,
+        ),
       ),
     );
   }
 
-  Widget _buildHeader(
-    ThemeData theme,
-    List<BoxShadow> shadows,
-  ) {
+  Widget _buildHeader(ThemeData theme, List<BoxShadow> shadows) {
     final colors = theme.colorScheme;
 
     return Padding(
@@ -292,10 +297,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHabitPrompt(
-    ThemeData theme,
-    List<BoxShadow> shadows,
-  ) {
+  Widget _buildHabitPrompt(ThemeData theme, List<BoxShadow> shadows) {
     final colors = theme.colorScheme;
 
     return Padding(
@@ -378,11 +380,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const Spacer(),
-          Icon(
-            Icons.groups_2_outlined,
-            color: colors.primary,
-            size: 20,
-          ),
+          Icon(Icons.groups_2_outlined, color: colors.primary, size: 20),
           const SizedBox(width: 6),
           Text(
             'برای الهام گرفتن',
@@ -394,86 +392,12 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  Widget _buildBottomNavigation(
-    ThemeData theme,
-    List<BoxShadow> shadows,
-  ) {
-    final colors = theme.colorScheme;
-
-    const items = [
-      _NavItemData(
-        icon: Icons.home_rounded,
-        label: 'خانه',
-      ),
-      _NavItemData(
-        icon: Icons.explore_outlined,
-        label: 'کشف',
-      ),
-      _NavItemData(
-        icon: Icons.add_rounded,
-        label: 'ثبت تلاش',
-      ),
-      _NavItemData(
-        icon: Icons.track_changes_rounded,
-        label: 'پیگیری',
-      ),
-      _NavItemData(
-        icon: Icons.person_outline_rounded,
-        label: 'پروفایل',
-      ),
-    ];
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        boxShadow: [
-          BoxShadow(
-            color: colors.shadow.withOpacity(0.08),
-            offset: const Offset(0, -4),
-            blurRadius: 16,
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
-          child: Row(
-            children: List.generate(items.length, (index) {
-              final item = items[index];
-
-              if (index == 2) {
-                return Expanded(
-                  child: _AddNavigationButton(
-                    item: item,
-                    color: colors.primary,
-                    onTap: () => _handleNavigation(index),
-                  ),
-                );
-              }
-
-              return Expanded(
-                child: _BottomNavigationItem(
-                  item: item,
-                  selected: index == 0,
-                  theme: theme,
-                  onTap: () => _handleNavigation(index),
-                ),
-              );
-            }),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _PostCard extends StatelessWidget {
   const _PostCard({
     required this.post,
     required this.isLiked,
-    required this.shadows,
     required this.onLike,
     required this.onComment,
     required this.onMore,
@@ -481,7 +405,6 @@ class _PostCard extends StatelessWidget {
 
   final _HabitPost post;
   final bool isLiked;
-  final List<BoxShadow> shadows;
   final VoidCallback onLike;
   final VoidCallback onComment;
   final VoidCallback onMore;
@@ -491,25 +414,18 @@ class _PostCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: shadows,
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 8, 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Row(
               children: [
                 const CircleAvatar(
                   radius: 23,
-                  backgroundImage: AssetImage(
-                    'assets/images/man.jpg',
-                  ),
+                  backgroundImage: AssetImage('assets/images/man.jpg'),
                 ),
                 const SizedBox(width: 11),
                 Expanded(
@@ -540,37 +456,31 @@ class _PostCard extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 11,
-                vertical: 7,
-              ),
-              decoration: BoxDecoration(
-                color: colors.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.self_improvement_rounded,
-                    size: 16,
-                    color: colors.onPrimaryContainer,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    post.habit,
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: colors.onPrimaryContainer,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _PostTag(
+                  label: post.habit,
+                  icon: Icons.self_improvement_rounded,
+                  backgroundColor: const Color(0xFF1565C0),
+                  foregroundColor: Colors.white,
+                ),
+                _PostTag(
+                  label: post.frequency,
+                  icon: Icons.repeat_rounded,
+                  backgroundColor: const Color(0xFF6A1B9A),
+                  foregroundColor: Colors.white,
+                ),
+                _HabitRecordTag(recordCount: post.habitRecordCount),
+              ],
             ),
           ),
+
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
             child: Text(
@@ -581,33 +491,36 @@ class _PostCard extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(18),
-              child: AspectRatio(
-                aspectRatio: 1.15,
-                child: Image.asset(
-                  post.image,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) {
-                    return ColoredBox(
-                      color: colors.surfaceContainerHighest,
-                      child: Center(
-                        child: Icon(
-                          Icons.image_not_supported_outlined,
-                          size: 36,
-                          color: colors.onSurfaceVariant,
+
+          if (post.image != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: AspectRatio(
+                  aspectRatio: 1.15,
+                  child: Image.asset(
+                    post.image!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) {
+                      return ColoredBox(
+                        color: colors.surfaceContainerHighest,
+                        child: Center(
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            size: 36,
+                            color: colors.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
+
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+            padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
             child: Row(
               children: [
                 _PostAction(
@@ -615,14 +528,14 @@ class _PostCard extends StatelessWidget {
                       ? Icons.favorite_rounded
                       : Icons.favorite_border_rounded,
                   label: '${post.likes + (isLiked ? 1 : 0)}',
-                  color: isLiked ? colors.error : colors.onSurfaceVariant,
+                  color: isLiked ? colors.error : colors.onSurface,
                   onTap: onLike,
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 18),
                 _PostAction(
                   icon: Icons.mode_comment_outlined,
                   label: '${post.comments}',
-                  color: colors.onSurfaceVariant,
+                  color: colors.onSurface,
                   onTap: onComment,
                 ),
                 const Spacer(),
@@ -638,10 +551,7 @@ class _PostCard extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: Icon(
-                    Icons.share_outlined,
-                    color: colors.onSurfaceVariant,
-                  ),
+                  icon: Icon(Icons.share_outlined, color: colors.onSurface),
                 ),
               ],
             ),
@@ -650,6 +560,134 @@ class _PostCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PostTag extends StatelessWidget {
+  const _PostTag({
+    required this.label,
+    required this.icon,
+    required this.backgroundColor,
+    required this.foregroundColor,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color backgroundColor;
+  final Color foregroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: foregroundColor),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: foregroundColor,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HabitRecordTag extends StatelessWidget {
+  const _HabitRecordTag({required this.recordCount});
+
+  final int recordCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final milestone = _milestoneFor(recordCount);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+      decoration: BoxDecoration(
+        color: milestone.backgroundColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: milestone.foregroundColor.withOpacity(0.75),
+          width: 1.2,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(milestone.icon, size: 17, color: milestone.foregroundColor),
+          const SizedBox(width: 5),
+          Text(
+            '$recordCount',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: milestone.foregroundColor,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _RecordMilestone _milestoneFor(int count) {
+    if (count >= 100) {
+      return const _RecordMilestone(
+        icon: Icons.workspace_premium_rounded,
+        backgroundColor: Color(0xFFFFD54F),
+        foregroundColor: Color(0xFF4E342E),
+      );
+    }
+
+    if (count >= 50) {
+      return const _RecordMilestone(
+        icon: Icons.military_tech_rounded,
+        backgroundColor: Color(0xFFB0BEC5),
+        foregroundColor: Color(0xFF263238),
+      );
+    }
+
+    if (count >= 25) {
+      return const _RecordMilestone(
+        icon: Icons.emoji_events_rounded,
+        backgroundColor: Color(0xFFFFAB91),
+        foregroundColor: Color(0xFF7F2704),
+      );
+    }
+
+    if (count >= 10) {
+      return const _RecordMilestone(
+        icon: Icons.stars_rounded,
+        backgroundColor: Color(0xFF80DEEA),
+        foregroundColor: Color(0xFF004D40),
+      );
+    }
+
+    return const _RecordMilestone(
+      icon: Icons.bolt_rounded,
+      backgroundColor: Color(0xFFC5E1A5),
+      foregroundColor: Color(0xFF33691E),
+    );
+  }
+}
+
+class _RecordMilestone {
+  const _RecordMilestone({
+    required this.icon,
+    required this.backgroundColor,
+    required this.foregroundColor,
+  });
+
+  final IconData icon;
+  final Color backgroundColor;
+  final Color foregroundColor;
 }
 
 class _PostAction extends StatelessWidget {
@@ -671,10 +709,7 @@ class _PostAction extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 4,
-          vertical: 6,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
         child: Row(
           children: [
             Icon(icon, size: 21, color: color),
@@ -682,9 +717,9 @@ class _PostAction extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: color,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
@@ -727,111 +762,14 @@ class _HeaderIconButton extends StatelessWidget {
   }
 }
 
-class _BottomNavigationItem extends StatelessWidget {
-  const _BottomNavigationItem({
-    required this.item,
-    required this.selected,
-    required this.theme,
-    required this.onTap,
-  });
-
-  final _NavItemData item;
-  final bool selected;
-  final ThemeData theme;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = theme.colorScheme;
-
-    final color = selected
-        ? colors.primary
-        : colors.onSurfaceVariant;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 5,
-          horizontal: 2,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(item.icon, size: 23, color: color),
-            const SizedBox(height: 4),
-            Text(
-              item.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: color,
-                fontWeight: selected
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AddNavigationButton extends StatelessWidget {
-  const _AddNavigationButton({
-    required this.item,
-    required this.color,
-    required this.onTap,
-  });
-
-  final _NavItemData item;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 42,
-              height: 36,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(13),
-              ),
-              child: Icon(item.icon, color: Colors.white, size: 25),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              item.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _HabitPost {
   const _HabitPost({
     required this.id,
     required this.username,
     required this.handle,
     required this.habit,
+    required this.frequency,
+    required this.habitRecordCount,
     required this.time,
     required this.caption,
     required this.image,
@@ -843,20 +781,11 @@ class _HabitPost {
   final String username;
   final String handle;
   final String habit;
+  final String frequency;
+  final int habitRecordCount;
   final String time;
   final String caption;
-  final String image;
+  final String? image;
   final int likes;
   final int comments;
 }
-
-class _NavItemData {
-  const _NavItemData({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-}
-
