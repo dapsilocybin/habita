@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:habita/core/theme/app_theme.dart';
+import 'package:habita/data/models/habit_post_model.dart';
+import 'package:habita/data/providers/home_provider.dart';
+import 'package:habita/data/repositories/home_repository.dart';
+import 'package:habita/logic/blocs/home/home_bloc.dart';
+import 'package:habita/logic/blocs/home/home_event.dart';
+import 'package:habita/logic/blocs/home/home_state.dart';
 import 'package:habita/presentation/widgets/habita_bottom_navigation.dart';
+import 'package:habita/presentation/screens/add_record/add_record_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, this.onNavigate});
@@ -14,58 +22,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final Set<int> _likedPosts = {};
+  bool _showWelcomeSection = true;
 
-  static const List<_HabitPost> _posts = [
-    _HabitPost(
-      id: 1,
-      username: 'علی رضایی',
-      handle: '@ali.r',
-      habit: 'ورزش روزانه',
-      frequency: 'روزی یک بار',
-      habitRecordCount: 25,
-      time: '۲۰ دقیقه پیش',
-      caption:
-          'امروز هم با اینکه خیلی خسته بودم، تمرینم رو انجام دادم. '
-          'قرار نیست هر روز عالی باشیم؛ فقط باید ادامه بدیم. 💪',
-      image: 'assets/images/post.jpg',
-      likes: 24,
-      comments: 6,
-    ),
-    _HabitPost(
-      id: 2,
-      username: 'مریم احمدی',
-      handle: '@maryam.a',
-      habit: 'مطالعه روزانه',
-      frequency: 'روزی دو بار',
-      habitRecordCount: 10,
-      time: '۱ ساعت پیش',
-      caption:
-          'فقط ده صفحه خوندم، ولی به قول خودم عمل کردم. '
-          'قدم‌های کوچیک هم حساب می‌شن. 📚',
-      image: 'assets/images/post.jpg',
-      likes: 18,
-      comments: 3,
-    ),
-    _HabitPost(
-      id: 3,
-      username: 'امیر محمدی',
-      handle: '@amir.m',
-      habit: 'خواب منظم',
-      frequency: 'هفته‌ای پنج روز',
-      habitRecordCount: 100,
-      time: '۳ ساعت پیش',
-      caption:
-          'دیشب زودتر گوشی رو کنار گذاشتم و امروز صبح '
-          'با انرژی بیشتری بیدار شدم. گاهی همین تغییر کوچیک '
-          'باعث می‌شه روزمون رو بهتر شروع کنیم.',
-      image: null,
-      likes: 12,
-      comments: 2,
-    ),
-  ];
-
-  void _handleNavigation(int index) {
+  void _handleNavigation(int index, HomeBloc homeBloc) {
     if (index == 0) return;
 
     if (widget.onNavigate != null) {
@@ -73,9 +32,19 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
+    if (index == 2) {
+      Navigator.of(context)
+          .push<void>(MaterialPageRoute(builder: (_) => const AddRecordPage()))
+          .then((_) {
+            if (mounted) {
+              homeBloc.add(const HomeFeedRefreshed());
+            }
+          });
+      return;
+    }
+
     const messages = {
       1: 'بخش کشف هنوز به صفحه اصلی متصل نشده است.',
-      2: 'بخش ثبت تلاش هنوز به صفحه اصلی متصل نشده است.',
       3: 'بخش پیگیری عادت‌ها هنوز به صفحه اصلی متصل نشده است.',
       4: 'بخش پروفایل هنوز به صفحه اصلی متصل نشده است.',
     };
@@ -92,6 +61,15 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) =>
+          HomeBloc(homeRepository: HomeRepository(homeProvider: HomeProvider()))
+            ..add(const HomeFeedRequested()),
+      child: _buildHomeContent(),
+    );
+  }
+
+  Widget _buildHomeContent() {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final neo = theme.extension<NeomorphismStyleExtension>();
@@ -112,97 +90,262 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           bottom: false,
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(child: _buildHeader(theme, shadows)),
-              
-              SliverToBoxAdapter(child: _buildWelcomeSection(theme)),
-              SliverToBoxAdapter(child: _buildHabitPrompt(theme, shadows)),
-              SliverToBoxAdapter(child: _buildFeedHeader(theme)),
-              SliverPadding(
-                padding: const EdgeInsets.only(bottom: 24),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final post = _posts[index];
+          child: BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              return RefreshIndicator(
+                onRefresh: () async {
+                  final bloc = context.read<HomeBloc>();
 
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _PostCard(
-                          post: post,
-                          isLiked: _likedPosts.contains(post.id),
-                          onLike: () {
-                            setState(() {
-                              if (!_likedPosts.add(post.id)) {
-                                _likedPosts.remove(post.id);
-                              }
-                            });
-                          },
-                          onComment: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'بخش دیدگاه‌ها در مرحله بعد اضافه می‌شود.',
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                          onMore: () {
-                            showModalBottomSheet<void>(
-                              context: context,
-                              showDragHandle: true,
-                              builder: (context) {
-                                return Directionality(
-                                  textDirection: TextDirection.rtl,
-                                  child: SafeArea(
-                                    child: ListTile(
-                                      leading: const Icon(Icons.flag_outlined),
-                                      title: const Text('گزارش این محتوا'),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        ScaffoldMessenger.of(this.context)
-                                          ..hideCurrentSnackBar()
-                                          ..showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'گزارش محتوا بعداً فعال می‌شود.',
-                                              ),
-                                            ),
-                                          );
+                  bloc.add(const HomeFeedRefreshed());
+
+                  await bloc.stream.firstWhere(
+                    (state) => state is HomeLoaded || state is HomeError,
+                  );
+                },
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: _buildHeader(
+                        theme,
+                        shadows,
+                        context.read<HomeBloc>(),
+                      ),
+                    ),
+
+                    SliverToBoxAdapter(
+                      child: AnimatedSize(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        alignment: Alignment.topCenter,
+                        child: _showWelcomeSection
+                            ? Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: IconButton(
+                                      tooltip: 'بستن',
+                                      icon: const Icon(Icons.close_rounded),
+                                      onPressed: () {
+                                        setState(() {
+                                          _showWelcomeSection = false;
+                                        });
                                       },
                                     ),
                                   ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        if (index < _posts.length - 1)
-                          Divider(
-                            height: 1,
-                            thickness: 1,
-                            indent: 16,
-                            endIndent: 16,
-                            color: colors.outlineVariant.withOpacity(0.65),
+                                  _buildWelcomeSection(theme),
+                                  _buildHabitPrompt(
+                                    theme,
+                                    shadows,
+                                    context.read<HomeBloc>(),
+                                  ),
+                                ],
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ),
+
+                    SliverToBoxAdapter(child: _buildFeedHeader(theme)),
+
+                    if (state is HomeLoaded) ...[
+                      if (state.posts.isEmpty)
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: _buildEmptyFeed(theme),
+                        )
+                      else
+                        SliverPadding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate((
+                              context,
+                              index,
+                            ) {
+                              final post = state.posts[index];
+
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _PostCard(
+                                    post: post,
+                                    isLiked: state.likedPostIds.contains(
+                                      post.id,
+                                    ),
+                                    onLike: () {
+                                      context.read<HomeBloc>().add(
+                                        HomePostLikeToggled(post.id),
+                                      );
+                                    },
+                                    onComment: () {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'بخش دیدگاه‌ها در مرحله بعد اضافه می‌شود.',
+                                          ),
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                    },
+                                    onMore: () {
+                                      showModalBottomSheet<void>(
+                                        context: context,
+                                        showDragHandle: true,
+                                        builder: (context) {
+                                          return Directionality(
+                                            textDirection: TextDirection.rtl,
+                                            child: SafeArea(
+                                              child: ListTile(
+                                                leading: const Icon(
+                                                  Icons.flag_outlined,
+                                                ),
+                                                title: const Text(
+                                                  'گزارش این محتوا',
+                                                ),
+                                                onTap: () {
+                                                  Navigator.pop(context);
+
+                                                  ScaffoldMessenger.of(
+                                                      this.context,
+                                                    )
+                                                    ..hideCurrentSnackBar()
+                                                    ..showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                          'گزارش محتوا بعداً فعال می‌شود.',
+                                                        ),
+                                                      ),
+                                                    );
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  if (index < state.posts.length - 1)
+                                    Divider(
+                                      height: 1,
+                                      thickness: 1,
+                                      indent: 16,
+                                      endIndent: 16,
+                                      color: colors.outlineVariant.withOpacity(
+                                        0.65,
+                                      ),
+                                    ),
+                                ],
+                              );
+                            }, childCount: state.posts.length),
                           ),
-                      ],
-                    );
-                  }, childCount: _posts.length),
+                        ),
+                    ] else if (state is HomeError) ...[
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: _buildFeedError(theme, state.message),
+                      ),
+                    ] else ...[
+                      const SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                    ],
+                  ],
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ),
-        bottomNavigationBar: HabitaBottomNavigation(
-          selectedIndex: 0,
-          onItemSelected: _handleNavigation,
+        bottomNavigationBar: Builder(
+          builder: (homeContext) => HabitaBottomNavigation(
+            selectedIndex: 0,
+            onItemSelected: (index) {
+              _handleNavigation(index, homeContext.read<HomeBloc>());
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader(ThemeData theme, List<BoxShadow> shadows) {
+  Widget _buildEmptyFeed(ThemeData theme) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.dynamic_feed_outlined,
+              size: 52,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'هنوز تلاشی ثبت نشده است.',
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'اولین نفری باش که تلاشت رو با جامعه به اشتراک می‌ذاره.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeedError(ThemeData theme, String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_off_rounded,
+              size: 48,
+              color: theme.colorScheme.error,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'دریافت تلاش‌ها با مشکل مواجه شد.',
+              style: theme.textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: () {
+                context.read<HomeBloc>().add(const HomeFeedRequested());
+              },
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('تلاش مجدد'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(
+    ThemeData theme,
+    List<BoxShadow> shadows,
+    HomeBloc homeBloc,
+  ) {
     final colors = theme.colorScheme;
 
     return Padding(
@@ -247,7 +390,7 @@ class _HomePageState extends State<HomePage> {
           _HeaderIconButton(
             icon: Icons.search_rounded,
             tooltip: 'جست‌وجو',
-            onTap: () => _handleNavigation(1),
+            onTap: () => _handleNavigation(1, homeBloc),
             shadows: shadows,
           ),
           const SizedBox(width: 10),
@@ -297,7 +440,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHabitPrompt(ThemeData theme, List<BoxShadow> shadows) {
+  Widget _buildHabitPrompt(
+    ThemeData theme,
+    List<BoxShadow> shadows,
+    HomeBloc homeBloc,
+  ) {
     final colors = theme.colorScheme;
 
     return Padding(
@@ -354,7 +501,7 @@ class _HomePageState extends State<HomePage> {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => _handleNavigation(2),
+                onPressed: () => _handleNavigation(2, homeBloc),
                 icon: const Icon(Icons.add_rounded),
                 label: const Text('ثبت تلاش امروز'),
               ),
@@ -403,7 +550,7 @@ class _PostCard extends StatelessWidget {
     required this.onMore,
   });
 
-  final _HabitPost post;
+  final HabitPost post;
   final bool isLiked;
   final VoidCallback onLike;
   final VoidCallback onComment;
@@ -433,14 +580,14 @@ class _PostCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        post.username,
+                        post.userFullName,
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${post.handle} · ${post.time}',
+                        '${post.username} · ${post.time}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: colors.onSurfaceVariant,
                         ),
@@ -457,7 +604,6 @@ class _PostCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Wrap(
@@ -465,7 +611,7 @@ class _PostCard extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _PostTag(
-                  label: post.habit,
+                  label: post.habitName,
                   icon: Icons.self_improvement_rounded,
                   backgroundColor: const Color(0xFF1565C0),
                   foregroundColor: Colors.white,
@@ -480,7 +626,6 @@ class _PostCard extends StatelessWidget {
               ],
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
             child: Text(
@@ -491,34 +636,29 @@ class _PostCard extends StatelessWidget {
               ),
             ),
           ),
-
           if (post.image != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: AspectRatio(
-                  aspectRatio: 1.15,
-                  child: Image.asset(
-                    post.image!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) {
-                      return ColoredBox(
-                        color: colors.surfaceContainerHighest,
-                        child: Center(
-                          child: Icon(
-                            Icons.image_not_supported_outlined,
-                            size: 36,
-                            color: colors.onSurfaceVariant,
-                          ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: AspectRatio(
+                aspectRatio: 1.15,
+                child: Image.asset(
+                  post.image!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) {
+                    return ColoredBox(
+                      color: colors.surfaceContainerHighest,
+                      child: Center(
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
+                          size: 36,
+                          color: colors.onSurfaceVariant,
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
-
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
             child: Row(
@@ -527,7 +667,7 @@ class _PostCard extends StatelessWidget {
                   icon: isLiked
                       ? Icons.favorite_rounded
                       : Icons.favorite_border_rounded,
-                  label: '${post.likes + (isLiked ? 1 : 0)}',
+                  label: '${post.likes}',
                   color: isLiked ? colors.error : colors.onSurface,
                   onTap: onLike,
                 ),
@@ -760,32 +900,4 @@ class _HeaderIconButton extends StatelessWidget {
       ),
     );
   }
-}
-
-class _HabitPost {
-  const _HabitPost({
-    required this.id,
-    required this.username,
-    required this.handle,
-    required this.habit,
-    required this.frequency,
-    required this.habitRecordCount,
-    required this.time,
-    required this.caption,
-    required this.image,
-    required this.likes,
-    required this.comments,
-  });
-
-  final int id;
-  final String username;
-  final String handle;
-  final String habit;
-  final String frequency;
-  final int habitRecordCount;
-  final String time;
-  final String caption;
-  final String? image;
-  final int likes;
-  final int comments;
 }
