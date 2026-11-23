@@ -13,16 +13,14 @@ class AddRecordRepository {
   }
 
   Future<void> publishRecord({
-    required String habitId,
+    required String userHabitId,
     required String caption,
-    required String frequencyLabel,
     Uint8List? imageBytes,
     String? imageName,
   }) {
     return addRecordProvider.publishRecord(
-      habitId: habitId,
+      userHabitId: userHabitId,
       caption: caption,
-      frequencyLabel: frequencyLabel,
       imageBytes: imageBytes,
       imageName: imageName,
     );

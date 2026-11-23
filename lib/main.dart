@@ -26,7 +26,7 @@ Future<void> main() async {
 class HabitaApp extends StatelessWidget {
   const HabitaApp({super.key});
 
-  static const Color initialSeedColor = Color(0xFF71A7EE);
+  static const Color initialSeedColor = Color.fromARGB(255, 40, 116, 25);
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,7 @@ class HabitaApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme(seedColor: initialSeedColor),
       darkTheme: AppTheme.darkTheme(seedColor: initialSeedColor),
-      themeMode: ThemeMode.light,
+      themeMode: ThemeMode.dark,
       home: const AuthGate(),
     );
   }

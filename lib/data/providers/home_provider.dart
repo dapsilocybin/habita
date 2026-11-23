@@ -12,6 +12,7 @@ class HomeProvider {
           id,
           user_id,
           habit_id,
+          record_number,
           caption,
           image_path,
           frequency_label,
@@ -35,52 +36,11 @@ class HomeProvider {
         .order('created_at', ascending: false)
         .limit(30);
 
-    if (records.isEmpty) {
-      return [];
-    }
-
-    // Collect unique user/habit combinations.
-    // We only count public records for the feed milestone.
-    final uniquePairs = <String, List<String>>{};
-
-    for (final record in records) {
-      final userId = record['user_id'] as String;
-      final habitId = record['habit_id'] as String;
-      final key = '$userId::$habitId';
-
-      uniquePairs.putIfAbsent(key, () => [userId, habitId]);
-    }
-
-    // Fetch counts for each unique user/habit combination.
-    final countEntries = await Future.wait(
-      uniquePairs.entries.map((entry) async {
-        final userId = entry.value[0];
-        final habitId = entry.value[1];
-
-        final response = await _client
-            .from('habit_records')
-            .select('id')
-            .eq('user_id', userId)
-            .eq('habit_id', habitId)
-            .eq('visibility', 'public')
-            .isFilter('deleted_at', null)
-            .count(CountOption.exact);
-
-        return MapEntry(entry.key, response.count ?? 0);
-      }),
-    );
-
-    final recordCounts = Map<String, int>.fromEntries(countEntries);
-
     // Convert database records into HabitPost models.
     return records.map((record) {
       final profile = record['profiles'] as Map<String, dynamic>? ?? {};
 
       final habit = record['habits'] as Map<String, dynamic>? ?? {};
-
-      final userId = record['user_id'] as String;
-      final habitId = record['habit_id'] as String;
-      final key = '$userId::$habitId';
 
       final imagePath = record['image_path'] as String?;
 
@@ -98,7 +58,7 @@ class HomeProvider {
         userFullName: profile['full_name'] as String? ?? '',
         habitName: habit['name'] as String? ?? '',
         frequency: record['frequency_label'] as String? ?? 'نامشخص',
-        habitRecordCount: recordCounts[key] ?? 0,
+        recordNumber: (record['record_number'] as num?)?.toInt() ?? 0,
         time: _formatTimeAgo(createdAt),
         caption: record['caption'] as String,
         image: imageUrl,
@@ -161,7 +121,6 @@ class HomeProvider {
     }).join();
   }
 
-  
   Future<Set<String>> fetchLikedPostIds() async {
     final userId = _client.auth.currentUser?.id;
 
@@ -174,9 +133,7 @@ class HomeProvider {
         .select('record_id')
         .eq('user_id', userId);
 
-    return response
-        .map((item) => item['record_id'] as String)
-        .toSet();
+    return response.map((item) => item['record_id'] as String).toSet();
   }
 
   Future<bool> toggleLike(String recordId) async {
@@ -210,5 +167,4 @@ class HomeProvider {
 
     return true;
   }
-
 }

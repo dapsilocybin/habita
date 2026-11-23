@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:habita/presentation/screens/comments/comments_page.dart';
 
 class RecordDetailPage extends StatefulWidget {
   final String? username;
+  final String? recordId;
 
-  const RecordDetailPage({
-    super.key,
-    this.username,
-  });
+  const RecordDetailPage({super.key, this.username, this.recordId});
 
   @override
   State<RecordDetailPage> createState() => _RecordDetailPageState();
@@ -16,7 +15,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
   bool _isLiked = false;
 
   int _likeCount = 128;
-  final int _commentCount = 24;
+  int _commentCount = 0;
 
   final String _habitName = 'باشگاه';
 
@@ -31,19 +30,24 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
     });
   }
 
-  void _openComments() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('صفحه نظرات در حال آماده‌سازی است.'),
-      ),
+  Future<void> _openComments() async {
+    final recordId = widget.recordId;
+    if (recordId == null) return;
+
+    final commentCount = await Navigator.of(context).push<int>(
+      MaterialPageRoute(builder: (_) => CommentsPage(recordId: recordId)),
     );
+
+    if (commentCount != null && mounted) {
+      setState(() {
+        _commentCount = commentCount;
+      });
+    }
   }
 
   void _shareRecord() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('اشتراک‌گذاری در نسخه نهایی اضافه می‌شود.'),
-      ),
+      const SnackBar(content: Text('اشتراک‌گذاری در نسخه نهایی اضافه می‌شود.')),
     );
   }
 
@@ -160,10 +164,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
             ),
             padding: const EdgeInsets.all(3),
             child: ClipOval(
-              child: Image.asset(
-                'assets/images/man.jpg',
-                fit: BoxFit.cover,
-              ),
+              child: Image.asset('assets/images/man.jpg', fit: BoxFit.cover),
             ),
           ),
           const SizedBox(width: 12),
@@ -200,10 +201,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(20),
@@ -253,10 +251,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
         borderRadius: BorderRadius.circular(24),
         child: AspectRatio(
           aspectRatio: 4 / 3,
-          child: Image.asset(
-            'assets/images/post.jpg',
-            fit: BoxFit.cover,
-          ),
+          child: Image.asset('assets/images/post.jpg', fit: BoxFit.cover),
         ),
       ),
     );
@@ -275,27 +270,19 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
               IconButton(
                 onPressed: _toggleLike,
                 icon: Icon(
-                  _isLiked
-                      ? Icons.favorite
-                      : Icons.favorite_border,
+                  _isLiked ? Icons.favorite : Icons.favorite_border,
                   color: _isLiked
                       ? colorScheme.error
                       : colorScheme.onSurfaceVariant,
                 ),
               ),
-              Text(
-                '$_likeCount',
-                style: theme.textTheme.bodyMedium,
-              ),
+              Text('$_likeCount', style: theme.textTheme.bodyMedium),
               const SizedBox(width: 12),
               IconButton(
-                onPressed: _openComments,
+                onPressed: widget.recordId == null ? null : _openComments,
                 icon: const Icon(Icons.chat_bubble_outline),
               ),
-              Text(
-                '$_commentCount',
-                style: theme.textTheme.bodyMedium,
-              ),
+              Text('$_commentCount', style: theme.textTheme.bodyMedium),
               const Spacer(),
               IconButton(
                 onPressed: _shareRecord,
@@ -330,79 +317,12 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildComment(
-            context,
-            username: 'علی',
-            comment: 'دقیقاً همینطوره. مهم شروع کردنه.',
-          ),
-          const SizedBox(height: 14),
-          _buildComment(
-            context,
-            username: 'سارا',
-            comment: 'خیلی خوب گفتی، ادامه بده 💪',
-          ),
-          const SizedBox(height: 12),
           TextButton(
-            onPressed: _openComments,
+            onPressed: widget.recordId == null ? null : _openComments,
             child: const Text('مشاهده همه نظرات'),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildComment(
-    BuildContext context, {
-    required String username,
-    required String comment,
-  }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipOval(
-          child: Image.asset(
-            'assets/images/man.jpg',
-            width: 38,
-            height: 38,
-            fit: BoxFit.cover,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 10,
-            ),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: RichText(
-              text: TextSpan(
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurface,
-                  height: 1.5,
-                ),
-                children: [
-                  TextSpan(
-                    text: '$username  ',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextSpan(
-                    text: comment,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

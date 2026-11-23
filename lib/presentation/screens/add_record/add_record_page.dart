@@ -23,6 +23,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
   final _captionController = TextEditingController();
   final _imagePicker = ImagePicker();
   bool _isPickingImage = false;
+  bool _hasNavigatedAfterPublish = false;
 
   @override
   void initState() {
@@ -113,7 +114,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
                       itemBuilder: (context, index) {
                         final habit = habits[index];
                         final isSelected =
-                            habit.id == _addRecordBloc.state.selectedHabitId;
+                            habit.id ==
+                            _addRecordBloc.state.selectedUserHabitId;
 
                         return ListTile(
                           contentPadding: EdgeInsets.zero,
@@ -148,7 +150,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
     if (selectedHabit != null && mounted) {
       _addRecordBloc.add(
         AddRecordHabitSelected(
-          habitId: selectedHabit.id,
+          userHabitId: selectedHabit.id,
           habitName: selectedHabit.name,
         ),
       );
@@ -220,16 +222,18 @@ class _AddRecordPageState extends State<AddRecordPage> {
       child: BlocListener<AddRecordBloc, AddRecordState>(
         listenWhen: (previous, current) =>
             previous.validationMessage != current.validationMessage ||
-            previous.submissionSuccess != current.submissionSuccess ||
+            (!previous.submissionSuccess && current.submissionSuccess) ||
             previous.submissionError != current.submissionError,
         listener: (context, state) {
           if (state.validationMessage != null) {
             _showMessage(state.validationMessage!);
           } else if (state.submissionError != null) {
             _showMessage(state.submissionError!);
-          } else if (state.submissionSuccess) {
-            _captionController.clear();
-            _showMessage('تلاش تو با موفقیت ثبت شد.');
+          } else if (state.submissionSuccess &&
+              !state.isSubmitting &&
+              !_hasNavigatedAfterPublish) {
+            _hasNavigatedAfterPublish = true;
+            Navigator.of(context).pop(true);
           }
         },
         child: Directionality(

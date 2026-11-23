@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:habita/data/models/joined_habit_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -15,10 +16,8 @@ class AddRecordProvider {
     final records = await _client
         .from('user_habits')
         .select('''
+          id,
           habit_id,
-          frequency_type,
-          target_count,
-          target_period,
           habits!user_habits_habit_id_fkey!inner (
             id,
             name
@@ -33,19 +32,16 @@ class AddRecordProvider {
       final habit = record['habits'] as Map<String, dynamic>;
 
       return JoinedHabit.fromMap({
-        'id': habit['id'],
+        'id': record['id'],
+        'habit_id': habit['id'],
         'name': habit['name'],
-        'frequency_type': record['frequency_type'],
-        'target_count': record['target_count'],
-        'target_period': record['target_period'],
       });
     }).toList();
   }
 
   Future<void> publishRecord({
-    required String habitId,
+    required String userHabitId,
     required String caption,
-    required String frequencyLabel,
     Uint8List? imageBytes,
     String? imageName,
   }) async {
@@ -55,24 +51,32 @@ class AddRecordProvider {
       throw StateError('User is not authenticated.');
     }
 
+    final recordId = imageBytes == null ? null : _newRecordId();
+    final extension = imageBytes == null ? null : _imageExtension(imageName);
+    final imagePath = recordId == null
+        ? null
+        : '$userId/$recordId/image.$extension';
+    final recordValues = <String, dynamic>{
+      'user_id': userId,
+      'user_habit_id': userHabitId,
+      'caption': caption.trim(),
+      'visibility': 'public',
+      'image_path': imagePath,
+    };
+
+    if (recordId != null) {
+      recordValues['id'] = recordId;
+    }
+
     final record = await _client
         .from('habit_records')
-        .insert({
-          'user_id': userId,
-          'habit_id': habitId,
-          'caption': caption.trim(),
-          'frequency_label': frequencyLabel,
-          'visibility': 'public',
-          'image_path': null,
-        })
+        .insert(recordValues)
         .select('id')
         .single();
 
-    if (imageBytes == null) return;
+    if (imageBytes == null || imagePath == null || extension == null) return;
 
-    final recordId = record['id'] as String;
-    final extension = _imageExtension(imageName);
-    final imagePath = '$userId/$recordId/image.$extension';
+    final insertedRecordId = record['id'] as String;
     final storage = _client.storage.from('habit-record-images');
 
     try {
@@ -84,14 +88,6 @@ class AddRecordProvider {
           upsert: false,
         ),
       );
-
-      await _client
-          .from('habit_records')
-          .update({'image_path': imagePath})
-          .eq('id', recordId)
-          .eq('user_id', userId)
-          .select('id')
-          .single();
     } catch (error, stackTrace) {
       try {
         await storage.remove([imagePath]);
@@ -104,7 +100,7 @@ class AddRecordProvider {
         await _client
             .from('habit_records')
             .delete()
-            .eq('id', recordId)
+            .eq('id', insertedRecordId)
             .eq('user_id', userId);
       } catch (cleanupError, cleanupStackTrace) {
         debugPrint('Failed to clean up habit record: $cleanupError');
@@ -113,6 +109,20 @@ class AddRecordProvider {
 
       Error.throwWithStackTrace(error, stackTrace);
     }
+  }
+
+  String _newRecordId() {
+    final random = Random.secure();
+    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+    final hex = bytes
+        .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+        .join();
+    return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
+        '${hex.substring(12, 16)}-${hex.substring(16, 20)}-'
+        '${hex.substring(20)}';
   }
 
   String _imageExtension(String? imageName) {

@@ -1,11 +1,10 @@
-
 class HabitPost {
   final String id;
   final String username;
   final String userFullName;
   final String habitName;
   final String frequency;
-  final int habitRecordCount;
+  final int recordNumber;
   final String time;
   final String caption;
   final String? image;
@@ -19,7 +18,7 @@ class HabitPost {
     required this.userFullName,
     required this.habitName,
     required this.frequency,
-    required this.habitRecordCount,
+    required this.recordNumber,
     required this.time,
     required this.caption,
     this.image,
@@ -35,7 +34,7 @@ class HabitPost {
       userFullName: userFullName,
       habitName: habitName,
       frequency: frequency,
-      habitRecordCount: habitRecordCount,
+      recordNumber: recordNumber,
       time: time,
       caption: caption,
       image: image,

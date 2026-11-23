@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:habita/data/models/joined_habit_model.dart';
 
 class AddRecordState extends Equatable {
-  final String? selectedHabitId;
+  final String? selectedUserHabitId;
   final String? selectedHabitName;
   final String caption;
   final Uint8List? imageBytes;
@@ -19,7 +19,7 @@ class AddRecordState extends Equatable {
   final String? submissionError;
 
   const AddRecordState({
-    this.selectedHabitId,
+    this.selectedUserHabitId,
     this.selectedHabitName,
     this.caption = '',
     this.imageBytes,
@@ -35,7 +35,7 @@ class AddRecordState extends Equatable {
   });
 
   AddRecordState copyWith({
-    String? selectedHabitId,
+    String? selectedUserHabitId,
     String? selectedHabitName,
     bool clearSelectedHabit = false,
     String? caption,
@@ -55,9 +55,9 @@ class AddRecordState extends Equatable {
     bool clearSubmissionError = false,
   }) {
     return AddRecordState(
-      selectedHabitId: clearSelectedHabit
+      selectedUserHabitId: clearSelectedHabit
           ? null
-          : selectedHabitId ?? this.selectedHabitId,
+          : selectedUserHabitId ?? this.selectedUserHabitId,
       selectedHabitName: clearSelectedHabit
           ? null
           : selectedHabitName ?? this.selectedHabitName,
@@ -81,7 +81,7 @@ class AddRecordState extends Equatable {
 
   @override
   List<Object?> get props => [
-    selectedHabitId,
+    selectedUserHabitId,
     selectedHabitName,
     caption,
     imageBytes,

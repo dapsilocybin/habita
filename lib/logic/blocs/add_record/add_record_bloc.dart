@@ -52,7 +52,7 @@ class AddRecordBloc extends Bloc<AddRecordEvent, AddRecordState> {
   ) {
     emit(
       state.copyWith(
-        selectedHabitId: event.habitId,
+        selectedUserHabitId: event.userHabitId,
         selectedHabitName: event.habitName,
         clearValidationMessage: true,
         submissionReady: false,
@@ -114,7 +114,7 @@ class AddRecordBloc extends Bloc<AddRecordEvent, AddRecordState> {
   ) async {
     if (state.isSubmitting) return;
 
-    if (state.selectedHabitId == null) {
+    if (state.selectedUserHabitId == null) {
       emit(
         state.copyWith(
           validationMessage: 'ابتدا یک عادت انتخاب کن.',
@@ -134,9 +134,9 @@ class AddRecordBloc extends Bloc<AddRecordEvent, AddRecordState> {
       return;
     }
 
-    final habitId = state.selectedHabitId!;
+    final userHabitId = state.selectedUserHabitId!;
     final matchingHabits = state.joinedHabits.where(
-      (habit) => habit.id == habitId,
+      (habit) => habit.id == userHabitId,
     );
 
     if (matchingHabits.isEmpty) {
@@ -148,7 +148,6 @@ class AddRecordBloc extends Bloc<AddRecordEvent, AddRecordState> {
       );
       return;
     }
-    final habit = matchingHabits.first;
 
     final caption = state.caption.trim();
     final imageBytes = state.imageBytes;
@@ -166,9 +165,8 @@ class AddRecordBloc extends Bloc<AddRecordEvent, AddRecordState> {
 
     try {
       await addRecordRepository.publishRecord(
-        habitId: habitId,
+        userHabitId: userHabitId,
         caption: caption,
-        frequencyLabel: habit.frequencyLabel,
         imageBytes: imageBytes,
         imageName: imageName,
       );

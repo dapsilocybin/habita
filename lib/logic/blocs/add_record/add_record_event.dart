@@ -14,16 +14,16 @@ class AddRecordHabitsRequested extends AddRecordEvent {
 }
 
 class AddRecordHabitSelected extends AddRecordEvent {
-  final String habitId;
+  final String userHabitId;
   final String habitName;
 
   const AddRecordHabitSelected({
-    required this.habitId,
+    required this.userHabitId,
     required this.habitName,
   });
 
   @override
-  List<Object?> get props => [habitId, habitName];
+  List<Object?> get props => [userHabitId, habitName];
 }
 
 class AddRecordCaptionChanged extends AddRecordEvent {

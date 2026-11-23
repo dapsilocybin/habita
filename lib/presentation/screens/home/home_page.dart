@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:habita/core/theme/app_theme.dart';
@@ -9,6 +11,16 @@ import 'package:habita/logic/blocs/home/home_event.dart';
 import 'package:habita/logic/blocs/home/home_state.dart';
 import 'package:habita/presentation/widgets/habita_bottom_navigation.dart';
 import 'package:habita/presentation/screens/add_record/add_record_page.dart';
+import 'package:habita/presentation/screens/comments/comments_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+String _toPersianDigits(int number) {
+  const persian = '۰۱۲۳۴۵۶۷۸۹';
+  return number.toString().split('').map((digit) {
+    final index = int.tryParse(digit);
+    return index == null ? digit : persian[index];
+  }).join();
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, this.onNavigate});
@@ -22,8 +34,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _showWelcomeSection = true;
-
   void _handleNavigation(int index, HomeBloc homeBloc) {
     if (index == 0) return;
 
@@ -34,11 +44,22 @@ class _HomePageState extends State<HomePage> {
 
     if (index == 2) {
       Navigator.of(context)
-          .push<void>(MaterialPageRoute(builder: (_) => const AddRecordPage()))
-          .then((_) {
-            if (mounted) {
-              homeBloc.add(const HomeFeedRefreshed());
+          .push<bool>(MaterialPageRoute(builder: (_) => const AddRecordPage()))
+          .then((wasPublished) {
+            if (!mounted) return;
+
+            if (wasPublished == true) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  const SnackBar(
+                    content: Text('ثبت تلاش با موفقیت انجام شد'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
             }
+
+            homeBloc.add(const HomeFeedRefreshed());
           });
       return;
     }
@@ -90,172 +111,176 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           bottom: false,
-          child: BlocBuilder<HomeBloc, HomeState>(
-            builder: (context, state) {
-              return RefreshIndicator(
-                onRefresh: () async {
-                  final bloc = context.read<HomeBloc>();
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, state) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      final bloc = context.read<HomeBloc>();
 
-                  bloc.add(const HomeFeedRefreshed());
+                      bloc.add(const HomeFeedRefreshed());
 
-                  await bloc.stream.firstWhere(
-                    (state) => state is HomeLoaded || state is HomeError,
-                  );
-                },
-                child: CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: _buildHeader(
-                        theme,
-                        shadows,
-                        context.read<HomeBloc>(),
-                      ),
-                    ),
-
-                    SliverToBoxAdapter(
-                      child: AnimatedSize(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        alignment: Alignment.topCenter,
-                        child: _showWelcomeSection
-                            ? Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: IconButton(
-                                      tooltip: 'بستن',
-                                      icon: const Icon(Icons.close_rounded),
-                                      onPressed: () {
-                                        setState(() {
-                                          _showWelcomeSection = false;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  _buildWelcomeSection(theme),
-                                  _buildHabitPrompt(
-                                    theme,
-                                    shadows,
-                                    context.read<HomeBloc>(),
-                                  ),
-                                ],
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                    ),
-
-                    SliverToBoxAdapter(child: _buildFeedHeader(theme)),
-
-                    if (state is HomeLoaded) ...[
-                      if (state.posts.isEmpty)
-                        SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: _buildEmptyFeed(theme),
-                        )
-                      else
-                        SliverPadding(
-                          padding: const EdgeInsets.only(bottom: 24),
-                          sliver: SliverList(
-                            delegate: SliverChildBuilderDelegate((
-                              context,
-                              index,
-                            ) {
-                              final post = state.posts[index];
-
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  _PostCard(
-                                    post: post,
-                                    isLiked: state.likedPostIds.contains(
-                                      post.id,
-                                    ),
-                                    onLike: () {
-                                      context.read<HomeBloc>().add(
-                                        HomePostLikeToggled(post.id),
-                                      );
-                                    },
-                                    onComment: () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'بخش دیدگاه‌ها در مرحله بعد اضافه می‌شود.',
-                                          ),
-                                          behavior: SnackBarBehavior.floating,
-                                        ),
-                                      );
-                                    },
-                                    onMore: () {
-                                      showModalBottomSheet<void>(
-                                        context: context,
-                                        showDragHandle: true,
-                                        builder: (context) {
-                                          return Directionality(
-                                            textDirection: TextDirection.rtl,
-                                            child: SafeArea(
-                                              child: ListTile(
-                                                leading: const Icon(
-                                                  Icons.flag_outlined,
-                                                ),
-                                                title: const Text(
-                                                  'گزارش این محتوا',
-                                                ),
-                                                onTap: () {
-                                                  Navigator.pop(context);
-
-                                                  ScaffoldMessenger.of(
-                                                      this.context,
-                                                    )
-                                                    ..hideCurrentSnackBar()
-                                                    ..showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                          'گزارش محتوا بعداً فعال می‌شود.',
-                                                        ),
-                                                      ),
-                                                    );
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                  ),
-                                  if (index < state.posts.length - 1)
-                                    Divider(
-                                      height: 1,
-                                      thickness: 1,
-                                      indent: 16,
-                                      endIndent: 16,
-                                      color: colors.outlineVariant.withOpacity(
-                                        0.65,
-                                      ),
-                                    ),
-                                ],
-                              );
-                            }, childCount: state.posts.length),
+                      await bloc.stream.firstWhere(
+                        (state) => state is HomeLoaded || state is HomeError,
+                      );
+                    },
+                    child: CustomScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: _buildHeader(
+                            theme,
+                            shadows,
+                            context.read<HomeBloc>(),
                           ),
                         ),
-                    ] else if (state is HomeError) ...[
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: _buildFeedError(theme, state.message),
-                      ),
-                    ] else ...[
-                      const SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                    ],
-                  ],
-                ),
-              );
-            },
+
+                        SliverToBoxAdapter(child: _buildFeedHeader(theme)),
+
+                        if (state is HomeLoaded) ...[
+                          if (state.posts.isEmpty)
+                            SliverFillRemaining(
+                              hasScrollBody: false,
+                              child: _buildEmptyFeed(theme),
+                            )
+                          else
+                            SliverPadding(
+                              padding: const EdgeInsets.only(bottom: 24),
+                              sliver: SliverList(
+                                delegate: SliverChildBuilderDelegate((
+                                  context,
+                                  index,
+                                ) {
+                                  final post = state.posts[index];
+                                  debugPrint(
+                                    'Rendering post: ${post.id} - ${post.image}',
+                                  );
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      _PostCard(
+                                        post: post,
+                                        isLiked: state.likedPostIds.contains(
+                                          post.id,
+                                        ),
+                                        onLike: () {
+                                          context.read<HomeBloc>().add(
+                                            HomePostLikeToggled(post.id),
+                                          );
+                                        },
+                                        onComment: () {
+                                          showModalBottomSheet<void>(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            useSafeArea: true,
+                                            sheetAnimationStyle:
+                                                const AnimationStyle(
+                                                  duration: Duration(
+                                                    milliseconds: 350,
+                                                  ),
+                                                ),
+                                            backgroundColor: Theme.of(
+                                              context,
+                                            ).colorScheme.surface,
+                                            shape:
+                                                const RoundedRectangleBorder(),
+                                            builder: (context) {
+                                              return Directionality(
+                                                textDirection:
+                                                    TextDirection.rtl,
+                                                child: FractionallySizedBox(
+                                                  heightFactor: 1,
+                                                  child: CommentsPage(
+                                                    recordId: post.id,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ).then((_) {
+                                            if (context.mounted) {
+                                              context.read<HomeBloc>().add(
+                                                const HomeFeedRefreshed(),
+                                              );
+                                            }
+                                          });
+                                        },
+                                        onMore: () {
+                                          showModalBottomSheet<void>(
+                                            context: context,
+                                            showDragHandle: true,
+                                            builder: (context) {
+                                              return Directionality(
+                                                textDirection:
+                                                    TextDirection.rtl,
+                                                child: SafeArea(
+                                                  child: ListTile(
+                                                    leading: const Icon(
+                                                      Icons.flag_outlined,
+                                                    ),
+                                                    title: const Text(
+                                                      'گزارش این محتوا',
+                                                    ),
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+
+                                                      ScaffoldMessenger.of(
+                                                          this.context,
+                                                        )
+                                                        ..hideCurrentSnackBar()
+                                                        ..showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text(
+                                                              'گزارش محتوا بعداً فعال می‌شود.',
+                                                            ),
+                                                          ),
+                                                        );
+                                                    },
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                      ),
+                                      if (index < state.posts.length - 1)
+                                        Divider(
+                                          height: 1,
+                                          thickness: 1,
+                                          indent: 16,
+                                          endIndent: 16,
+                                          color: colors.outlineVariant
+                                              .withOpacity(0.65),
+                                        ),
+                                    ],
+                                  );
+                                }, childCount: state.posts.length),
+                              ),
+                            ),
+                        ] else if (state is HomeError) ...[
+                          SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: _buildFeedError(theme, state.message),
+                          ),
+                        ] else ...[
+                          const SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
+              ),
+              Positioned(
+                bottom: 0,
+                left: 16,
+                right: 16,
+                child: const IgnorePointer(child: _WelcomeNotification()),
+              ),
+            ],
           ),
         ),
         bottomNavigationBar: Builder(
@@ -412,106 +437,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildWelcomeSection(ThemeData theme) {
-    final colors = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'سلام، خوش اومدی 👋',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: colors.onSurface,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'امروز برای بهتر شدن چه قدمی برمی‌داری؟',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-              height: 1.7,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHabitPrompt(
-    ThemeData theme,
-    List<BoxShadow> shadows,
-    HomeBloc homeBloc,
-  ) {
-    final colors = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: shadows,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: colors.primaryContainer,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Icon(
-                    Icons.spa_rounded,
-                    color: colors.onPrimaryContainer,
-                    size: 25,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'شروع با یک قدم کوچک',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        'تلاشت می‌تونه به بقیه هم انگیزه بده.',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: () => _handleNavigation(2, homeBloc),
-                icon: const Icon(Icons.add_rounded),
-                label: const Text('ثبت تلاش امروز'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildFeedHeader(ThemeData theme) {
     final colors = theme.colorScheme;
 
@@ -536,6 +461,187 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _WelcomeNotification extends StatefulWidget {
+  const _WelcomeNotification();
+
+  @override
+  State<_WelcomeNotification> createState() => _WelcomeNotificationState();
+}
+
+class _WelcomeNotificationState extends State<_WelcomeNotification> {
+  Timer? _dismissTimer;
+  bool _isVisible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _dismissTimer = Timer(const Duration(seconds: 6), () {
+      if (!mounted) return;
+      setState(() => _isVisible = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _dismissTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return AnimatedSlide(
+      offset: _isVisible ? Offset.zero : const Offset(0, 0.15),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+      child: AnimatedOpacity(
+        opacity: _isVisible ? 1 : 0,
+        duration: const Duration(milliseconds: 250),
+        child: Material(
+          color: colors.surfaceContainerHigh,
+          elevation: 8,
+          shadowColor: colors.shadow.withValues(alpha: 0.18),
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.spa_rounded, color: colors.primary),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'سلام! با یک قدم کوچک شروع کن 👋',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: colors.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: colors.primary,
+                  size: 28,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RemotePostImage extends StatefulWidget {
+  const _RemotePostImage({required this.imageReference});
+
+  final String imageReference;
+
+  @override
+  State<_RemotePostImage> createState() => _RemotePostImageState();
+}
+
+class _RemotePostImageState extends State<_RemotePostImage> {
+  late Future<String> _imageUrlFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageUrlFuture = _createSignedUrl(widget.imageReference);
+  }
+
+  @override
+  void didUpdateWidget(covariant _RemotePostImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.imageReference != widget.imageReference) {
+      _imageUrlFuture = _createSignedUrl(widget.imageReference);
+    }
+  }
+
+  Future<String> _createSignedUrl(String imageReference) async {
+    const bucketName = 'habit-record-images';
+
+    final uri = Uri.tryParse(imageReference);
+
+    String storagePath;
+
+    if (uri != null && uri.hasScheme) {
+      const publicUrlPrefix = '/storage/v1/object/public/$bucketName/';
+
+      final pathIndex = uri.path.indexOf(publicUrlPrefix);
+
+      if (pathIndex == -1) {
+        throw FormatException('Invalid Supabase Storage URL: $imageReference');
+      }
+
+      storagePath = uri.path.substring(pathIndex + publicUrlPrefix.length);
+    } else {
+      // Also supports receiving the Storage path directly.
+      storagePath = imageReference;
+    }
+
+    if (storagePath.isEmpty) {
+      throw const FormatException('Storage path is empty.');
+    }
+
+    return Supabase.instance.client.storage
+        .from(bucketName)
+        .createSignedUrl(storagePath, 3600);
+  }
+
+  Widget _imagePlaceholder(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return ColoredBox(
+      color: colors.surfaceContainerHighest,
+      child: Center(
+        child: Icon(
+          Icons.image_not_supported_outlined,
+          size: 36,
+          color: colors.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: FutureBuilder<String>(
+        future: _imageUrlFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError || !snapshot.hasData) {
+            return _imagePlaceholder(context);
+          }
+
+          return Image.network(
+            snapshot.data!,
+            width: double.infinity,
+            fit: BoxFit.fitWidth,
+            alignment: Alignment.center,
+            errorBuilder: (context, error, stackTrace) {
+              return _imagePlaceholder(context);
+            },
+          );
+        },
       ),
     );
   }
@@ -596,6 +702,11 @@ class _PostCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
+                  tooltip: 'اطلاعات عادت',
+                  onPressed: () => _showHabitDetails(context),
+                  icon: const Icon(Icons.info_outline_rounded),
+                ),
+                IconButton(
                   tooltip: 'گزینه‌های بیشتر',
                   onPressed: onMore,
                   icon: const Icon(Icons.more_horiz_rounded),
@@ -603,31 +714,8 @@ class _PostCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 12),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _PostTag(
-                  label: post.habitName,
-                  icon: Icons.self_improvement_rounded,
-                  backgroundColor: const Color(0xFF1565C0),
-                  foregroundColor: Colors.white,
-                ),
-                _PostTag(
-                  label: post.frequency,
-                  icon: Icons.repeat_rounded,
-                  backgroundColor: const Color(0xFF6A1B9A),
-                  foregroundColor: Colors.white,
-                ),
-                _HabitRecordTag(recordCount: post.habitRecordCount),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
             child: Text(
               post.caption,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -636,29 +724,8 @@ class _PostCard extends StatelessWidget {
               ),
             ),
           ),
-          if (post.image != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: AspectRatio(
-                aspectRatio: 1.15,
-                child: Image.asset(
-                  post.image!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) {
-                    return ColoredBox(
-                      color: colors.surfaceContainerHighest,
-                      child: Center(
-                        child: Icon(
-                          Icons.image_not_supported_outlined,
-                          size: 36,
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
+
+          if (post.image != null) _RemotePostImage(imageReference: post.image!),
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
             child: Row(
@@ -700,134 +767,105 @@ class _PostCard extends StatelessWidget {
       ),
     );
   }
+
+  void _showHabitDetails(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colors = theme.colorScheme;
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'اطلاعات عادت',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _HabitDetailRow(
+                  icon: Icons.self_improvement_rounded,
+                  label: 'عادت',
+                  value: post.habitName,
+                  colors: colors,
+                  theme: theme,
+                ),
+                const SizedBox(height: 14),
+                _HabitDetailRow(
+                  icon: Icons.repeat_rounded,
+                  label: 'تکرار',
+                  value: post.frequency,
+                  colors: colors,
+                  theme: theme,
+                ),
+                const SizedBox(height: 14),
+                _HabitDetailRow(
+                  icon: Icons.insights_rounded,
+                  label: 'شماره ثبت',
+                  value: _toPersianDigits(post.recordNumber),
+                  colors: colors,
+                  theme: theme,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
-class _PostTag extends StatelessWidget {
-  const _PostTag({
+class _HabitDetailRow extends StatelessWidget {
+  const _HabitDetailRow({
+    required this.icon,
     required this.label,
-    required this.icon,
-    required this.backgroundColor,
-    required this.foregroundColor,
+    required this.value,
+    required this.colors,
+    required this.theme,
   });
 
+  final IconData icon;
   final String label;
-  final IconData icon;
-  final Color backgroundColor;
-  final Color foregroundColor;
+  final String value;
+  final ColorScheme colors;
+  final ThemeData theme;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: foregroundColor),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: foregroundColor,
-              fontWeight: FontWeight.w800,
-            ),
+    return Row(
+      children: [
+        Icon(icon, color: colors.primary),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HabitRecordTag extends StatelessWidget {
-  const _HabitRecordTag({required this.recordCount});
-
-  final int recordCount;
-
-  @override
-  Widget build(BuildContext context) {
-    final milestone = _milestoneFor(recordCount);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
-      decoration: BoxDecoration(
-        color: milestone.backgroundColor,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: milestone.foregroundColor.withOpacity(0.75),
-          width: 1.2,
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(milestone.icon, size: 17, color: milestone.foregroundColor),
-          const SizedBox(width: 5),
-          Text(
-            '$recordCount',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: milestone.foregroundColor,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
-
-  _RecordMilestone _milestoneFor(int count) {
-    if (count >= 100) {
-      return const _RecordMilestone(
-        icon: Icons.workspace_premium_rounded,
-        backgroundColor: Color(0xFFFFD54F),
-        foregroundColor: Color(0xFF4E342E),
-      );
-    }
-
-    if (count >= 50) {
-      return const _RecordMilestone(
-        icon: Icons.military_tech_rounded,
-        backgroundColor: Color(0xFFB0BEC5),
-        foregroundColor: Color(0xFF263238),
-      );
-    }
-
-    if (count >= 25) {
-      return const _RecordMilestone(
-        icon: Icons.emoji_events_rounded,
-        backgroundColor: Color(0xFFFFAB91),
-        foregroundColor: Color(0xFF7F2704),
-      );
-    }
-
-    if (count >= 10) {
-      return const _RecordMilestone(
-        icon: Icons.stars_rounded,
-        backgroundColor: Color(0xFF80DEEA),
-        foregroundColor: Color(0xFF004D40),
-      );
-    }
-
-    return const _RecordMilestone(
-      icon: Icons.bolt_rounded,
-      backgroundColor: Color(0xFFC5E1A5),
-      foregroundColor: Color(0xFF33691E),
-    );
-  }
-}
-
-class _RecordMilestone {
-  const _RecordMilestone({
-    required this.icon,
-    required this.backgroundColor,
-    required this.foregroundColor,
-  });
-
-  final IconData icon;
-  final Color backgroundColor;
-  final Color foregroundColor;
 }
 
 class _PostAction extends StatelessWidget {
@@ -862,6 +900,129 @@ class _PostAction extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PostCommentsSheet extends StatefulWidget {
+  const _PostCommentsSheet();
+
+  @override
+  State<_PostCommentsSheet> createState() => _PostCommentsSheetState();
+}
+
+class _PostCommentsSheetState extends State<_PostCommentsSheet> {
+  final _commentController = TextEditingController();
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final mediaQuery = MediaQuery.of(context);
+    final availableHeight =
+        mediaQuery.size.height - mediaQuery.viewInsets.bottom;
+
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: availableHeight * 0.72,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                child: Text(
+                  'دیدگاه‌ها',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.mode_comment_outlined,
+                          size: 48,
+                          color: colors.primary,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'هنوز دیدگاهی ثبت نشده است',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'اولین نفری باشید که دیدگاه می‌گذارد.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 19,
+                      backgroundImage: AssetImage('assets/images/man.jpg'),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: _commentController,
+                        autofocus: true,
+                        minLines: 1,
+                        maxLines: 4,
+                        textDirection: TextDirection.rtl,
+                        textAlign: TextAlign.right,
+                        textInputAction: TextInputAction.newline,
+                        decoration: InputDecoration(
+                          hintText: 'دیدگاه خود را بنویسید...',
+                          isDense: true,
+                          filled: true,
+                          fillColor: colors.surfaceContainerHighest.withValues(
+                            alpha: 0.45,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
