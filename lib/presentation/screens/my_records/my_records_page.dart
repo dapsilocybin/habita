@@ -15,7 +15,8 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
   final List<_MyRecord> _records = [
     const _MyRecord(
       habit: 'باشگاه',
-      caption: 'امروز تمرینم را کامل انجام دادم، حتی با اینکه انرژی زیادی نداشتم.',
+      caption:
+          'امروز تمرینم را کامل انجام دادم، حتی با اینکه انرژی زیادی نداشتم.',
       time: '۲ ساعت پیش',
       likes: 184,
       comments: 23,
@@ -60,10 +61,7 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
   List<String> get _filters {
     final habits = _records.map((record) => record.habit).toSet().toList();
 
-    return [
-      'همه',
-      ...habits,
-    ];
+    return ['همه', ...habits];
   }
 
   List<_MyRecord> get _filteredRecords {
@@ -71,9 +69,7 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
       return _records;
     }
 
-    return _records
-        .where((record) => record.habit == _selectedFilter)
-        .toList();
+    return _records.where((record) => record.habit == _selectedFilter).toList();
   }
 
   @override
@@ -82,10 +78,7 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('رکوردهای من'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('رکوردهای من'), centerTitle: true),
       body: Column(
         children: [
           _buildSummary(context),
@@ -96,13 +89,9 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
                 : ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                     itemCount: _filteredRecords.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: 16),
+                    separatorBuilder: (_, __) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
-                      return _buildRecordCard(
-                        context,
-                        _filteredRecords[index],
-                      );
+                      return _buildRecordCard(context, _filteredRecords[index]);
                     },
                   ),
           ),
@@ -145,11 +134,7 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
                 label: 'کل رکوردها',
               ),
             ),
-            Container(
-              width: 1,
-              height: 44,
-              color: colorScheme.outlineVariant,
-            ),
+            Container(width: 1, height: 44, color: colorScheme.outlineVariant),
             Expanded(
               child: _buildSummaryItem(
                 context,
@@ -158,11 +143,7 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
                 label: 'پسندها',
               ),
             ),
-            Container(
-              width: 1,
-              height: 44,
-              color: colorScheme.outlineVariant,
-            ),
+            Container(width: 1, height: 44, color: colorScheme.outlineVariant),
             Expanded(
               child: _buildSummaryItem(
                 context,
@@ -188,11 +169,7 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
 
     return Column(
       children: [
-        Icon(
-          icon,
-          size: 22,
-          color: colorScheme.primary,
-        ),
+        Icon(icon, size: 22, color: colorScheme.primary),
         const SizedBox(height: 6),
         Text(
           value,
@@ -219,10 +196,7 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
     return SizedBox(
       height: 58,
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         scrollDirection: Axis.horizontal,
         itemCount: _filters.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
@@ -251,10 +225,7 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
     );
   }
 
-  Widget _buildRecordCard(
-    BuildContext context,
-    _MyRecord record,
-  ) {
+  Widget _buildRecordCard(BuildContext context, _MyRecord record) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -282,9 +253,8 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => const RecordDetailPage(
-                  username: 'mostafa',
-                ),
+                builder: (_) =>
+                    const RecordDetailPage(recordId: 'mock-my-record'),
               ),
             );
           },
@@ -375,9 +345,7 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
                 const SizedBox(height: 12),
                 Text(
                   record.caption,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    height: 1.7,
-                  ),
+                  style: theme.textTheme.bodyLarge?.copyWith(height: 1.7),
                 ),
                 const SizedBox(height: 14),
                 ClipRRect(
@@ -428,22 +396,14 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
     );
   }
 
-  Widget _buildStat(
-    BuildContext context,
-    IconData icon,
-    String value,
-  ) {
+  Widget _buildStat(BuildContext context, IconData icon, String value) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 18,
-          color: colorScheme.onSurfaceVariant,
-        ),
+        Icon(icon, size: 18, color: colorScheme.onSurfaceVariant),
         const SizedBox(width: 6),
         Text(
           value,
@@ -530,9 +490,7 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text('حذف رکورد'),
-          content: const Text(
-            'آیا مطمئنی می‌خواهی این رکورد را حذف کنی؟',
-          ),
+          content: const Text('آیا مطمئنی می‌خواهی این رکورد را حذف کنی؟'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -546,11 +504,9 @@ class _MyRecordsPageState extends State<MyRecordsPage> {
                   _records.remove(record);
                 });
 
-                ScaffoldMessenger.of(this.context).showSnackBar(
-                  const SnackBar(
-                    content: Text('رکورد حذف شد.'),
-                  ),
-                );
+                ScaffoldMessenger.of(
+                  this.context,
+                ).showSnackBar(const SnackBar(content: Text('رکورد حذف شد.')));
               },
               child: const Text('حذف'),
             ),

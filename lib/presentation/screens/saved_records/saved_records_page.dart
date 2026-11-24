@@ -24,7 +24,8 @@ class _SavedRecordsPageState extends State<SavedRecordsPage> {
       username: 'sara.m',
       name: 'سارا محمدی',
       habit: 'مطالعه روزانه',
-      caption: 'فقط ۲۰ دقیقه مطالعه در روز می‌تواند بعد از چند ماه تفاوت بزرگی ایجاد کند.',
+      caption:
+          'فقط ۲۰ دقیقه مطالعه در روز می‌تواند بعد از چند ماه تفاوت بزرگی ایجاد کند.',
       time: 'دیروز',
       likes: 327,
       comments: 41,
@@ -42,7 +43,8 @@ class _SavedRecordsPageState extends State<SavedRecordsPage> {
       username: 'negar.k',
       name: 'نگار کریمی',
       habit: 'یادگیری زبان',
-      caption: 'امروز فقط ۱۵ دقیقه تمرین کردم، اما مهم این بود که زنجیره را قطع نکردم.',
+      caption:
+          'امروز فقط ۱۵ دقیقه تمرین کردم، اما مهم این بود که زنجیره را قطع نکردم.',
       time: '۳ روز پیش',
       likes: 241,
       comments: 28,
@@ -51,7 +53,8 @@ class _SavedRecordsPageState extends State<SavedRecordsPage> {
       username: 'ali.rezaei',
       name: 'علی رضایی',
       habit: 'پیاده‌روی روزانه',
-      caption: 'گاهی برای شروع یک عادت جدید، فقط باید از خانه بیرون بروی و قدم اول را برداری.',
+      caption:
+          'گاهی برای شروع یک عادت جدید، فقط باید از خانه بیرون بروی و قدم اول را برداری.',
       time: '۵ روز پیش',
       likes: 152,
       comments: 19,
@@ -63,10 +66,7 @@ class _SavedRecordsPageState extends State<SavedRecordsPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ذخیره‌شده‌ها'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('ذخیره‌شده‌ها'), centerTitle: true),
       body: _records.isEmpty
           ? _buildEmptyState(context)
           : ListView.separated(
@@ -74,19 +74,13 @@ class _SavedRecordsPageState extends State<SavedRecordsPage> {
               itemCount: _records.length,
               separatorBuilder: (_, __) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
-                return _buildRecordCard(
-                  context,
-                  _records[index],
-                );
+                return _buildRecordCard(context, _records[index]);
               },
             ),
     );
   }
 
-  Widget _buildRecordCard(
-    BuildContext context,
-    _SavedRecord record,
-  ) {
+  Widget _buildRecordCard(BuildContext context, _SavedRecord record) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -114,9 +108,7 @@ class _SavedRecordsPageState extends State<SavedRecordsPage> {
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => RecordDetailPage(
-                  username: record.username,
-                ),
+                builder: (_) => RecordDetailPage(recordId: 'mock-saved-record'),
               ),
             );
           },
@@ -198,9 +190,7 @@ class _SavedRecordsPageState extends State<SavedRecordsPage> {
                 const SizedBox(height: 12),
                 Text(
                   record.caption,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    height: 1.7,
-                  ),
+                  style: theme.textTheme.bodyLarge?.copyWith(height: 1.7),
                 ),
                 const SizedBox(height: 14),
                 ClipRRect(
@@ -242,22 +232,14 @@ class _SavedRecordsPageState extends State<SavedRecordsPage> {
     );
   }
 
-  Widget _buildStat(
-    BuildContext context,
-    IconData icon,
-    String value,
-  ) {
+  Widget _buildStat(BuildContext context, IconData icon, String value) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 19,
-          color: colorScheme.onSurfaceVariant,
-        ),
+        Icon(icon, size: 19, color: colorScheme.onSurfaceVariant),
         const SizedBox(width: 6),
         Text(
           value,
@@ -332,9 +314,7 @@ class _SavedRecordsPageState extends State<SavedRecordsPage> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('رکورد از ذخیره‌شده‌ها حذف شد.'),
-      ),
+      const SnackBar(content: Text('رکورد از ذخیره‌شده‌ها حذف شد.')),
     );
   }
 }

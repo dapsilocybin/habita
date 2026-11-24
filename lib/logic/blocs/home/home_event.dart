@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 abstract class HomeEvent extends Equatable {
@@ -23,6 +22,15 @@ class HomePostLikeToggled extends HomeEvent {
   final String postId;
 
   const HomePostLikeToggled(this.postId);
+
+  @override
+  List<Object?> get props => [postId];
+}
+
+class HomePostRequested extends HomeEvent {
+  final String postId;
+
+  const HomePostRequested(this.postId);
 
   @override
   List<Object?> get props => [postId];

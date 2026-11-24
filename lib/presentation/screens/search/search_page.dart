@@ -17,21 +17,9 @@ class _SearchPageState extends State<SearchPage> {
   int _selectedTab = 0;
 
   final List<_SearchUser> _users = [
-    _SearchUser(
-      name: 'علی رضایی',
-      username: 'ali.rezaei',
-      followers: '1.2K',
-    ),
-    _SearchUser(
-      name: 'سارا محمدی',
-      username: 'sara.m',
-      followers: '842',
-    ),
-    _SearchUser(
-      name: 'محمد احمدی',
-      username: 'mohammad.a',
-      followers: '621',
-    ),
+    _SearchUser(name: 'علی رضایی', username: 'ali.rezaei', followers: '1.2K'),
+    _SearchUser(name: 'سارا محمدی', username: 'sara.m', followers: '842'),
+    _SearchUser(name: 'محمد احمدی', username: 'mohammad.a', followers: '621'),
   ];
 
   final List<_SearchHabit> _habits = [
@@ -107,10 +95,7 @@ class _SearchPageState extends State<SearchPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('جستجو'),
-          centerTitle: false,
-        ),
+        appBar: AppBar(title: const Text('جستجو'), centerTitle: false),
         body: SafeArea(
           child: Column(
             children: [
@@ -119,17 +104,13 @@ class _SearchPageState extends State<SearchPage> {
                 child: _buildSearchField(theme),
               ),
               if (!_hasQuery)
-                Expanded(
-                  child: _buildInitialState(theme),
-                )
+                Expanded(child: _buildInitialState(theme))
               else
                 Expanded(
                   child: Column(
                     children: [
                       _buildTabs(theme),
-                      Expanded(
-                        child: _buildSearchResults(theme),
-                      ),
+                      Expanded(child: _buildSearchResults(theme)),
                     ],
                   ),
                 ),
@@ -207,35 +188,29 @@ class _SearchPageState extends State<SearchPage> {
           style: theme.textTheme.bodyMedium,
         ),
         const SizedBox(height: 24),
-        _buildSectionTitle(
-          theme,
-          title: 'جستجوهای پیشنهادی',
-        ),
+        _buildSectionTitle(theme, title: 'جستجوهای پیشنهادی'),
         const SizedBox(height: 12),
         Wrap(
           spacing: 10,
           runSpacing: 10,
-          children: [
-            'باشگاه',
-            'مطالعه',
-            'خواب منظم',
-            'یادگیری زبان',
-            'مدیتیشن',
-            'نوشیدن آب',
-          ].map((item) {
-            return _buildSuggestionChip(
-              theme,
-              item,
-            );
-          }).toList(),
+          children:
+              [
+                'باشگاه',
+                'مطالعه',
+                'خواب منظم',
+                'یادگیری زبان',
+                'مدیتیشن',
+                'نوشیدن آب',
+              ].map((item) {
+                return _buildSuggestionChip(theme, item);
+              }).toList(),
         ),
         const SizedBox(height: 28),
-        _buildSectionTitle(
-          theme,
-          title: 'عادت‌های محبوب',
-        ),
+        _buildSectionTitle(theme, title: 'عادت‌های محبوب'),
         const SizedBox(height: 12),
-        ..._habits.take(3).map(
+        ..._habits
+            .take(3)
+            .map(
               (habit) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: _buildHabitCard(theme, habit),
@@ -245,10 +220,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _buildSuggestionChip(
-    ThemeData theme,
-    String text,
-  ) {
+  Widget _buildSuggestionChip(ThemeData theme, String text) {
     final colorScheme = theme.colorScheme;
 
     return InkWell(
@@ -260,10 +232,7 @@ class _SearchPageState extends State<SearchPage> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 10,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
@@ -299,12 +268,7 @@ class _SearchPageState extends State<SearchPage> {
         ),
         child: Row(
           children: [
-            _buildTab(
-              theme,
-              index: 0,
-              title: 'همه',
-              icon: Icons.apps_rounded,
-            ),
+            _buildTab(theme, index: 0, title: 'همه', icon: Icons.apps_rounded),
             _buildTab(
               theme,
               index: 1,
@@ -369,8 +333,7 @@ class _SearchPageState extends State<SearchPage> {
                   title,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.labelMedium?.copyWith(
-                    fontWeight:
-                        isSelected ? FontWeight.bold : FontWeight.w500,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                     color: isSelected
                         ? colorScheme.primary
                         : colorScheme.onSurfaceVariant,
@@ -412,7 +375,9 @@ class _SearchPageState extends State<SearchPage> {
           },
         ),
         const SizedBox(height: 10),
-        ..._habits.take(2).map(
+        ..._habits
+            .take(2)
+            .map(
               (habit) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: _buildHabitCard(theme, habit),
@@ -430,7 +395,9 @@ class _SearchPageState extends State<SearchPage> {
           },
         ),
         const SizedBox(height: 10),
-        ..._users.take(2).map(
+        ..._users
+            .take(2)
+            .map(
               (user) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: _buildUserCard(theme, user),
@@ -448,7 +415,9 @@ class _SearchPageState extends State<SearchPage> {
           },
         ),
         const SizedBox(height: 10),
-        ..._records.take(2).map(
+        ..._records
+            .take(2)
+            .map(
               (record) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: _buildRecordCard(theme, record),
@@ -537,16 +506,11 @@ class _SearchPageState extends State<SearchPage> {
       decoration: BoxDecoration(
         color: colorScheme.primary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colorScheme.primary.withOpacity(0.15),
-        ),
+        border: Border.all(color: colorScheme.primary.withOpacity(0.15)),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.account_tree_rounded,
-            color: colorScheme.primary,
-          ),
+          Icon(Icons.account_tree_rounded, color: colorScheme.primary),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -561,10 +525,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _buildHabitCard(
-    ThemeData theme,
-    _SearchHabit habit,
-  ) {
+  Widget _buildHabitCard(ThemeData theme, _SearchHabit habit) {
     final colorScheme = theme.colorScheme;
 
     return InkWell(
@@ -572,9 +533,7 @@ class _SearchPageState extends State<SearchPage> {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => HabitSearchResultsPage(
-              initialQuery: habit.name,
-            ),
+            builder: (_) => HabitSearchResultsPage(initialQuery: habit.name),
           ),
         );
       },
@@ -605,10 +564,7 @@ class _SearchPageState extends State<SearchPage> {
                 color: colorScheme.primary.withOpacity(0.12),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                habit.icon,
-                color: colorScheme.primary,
-              ),
+              child: Icon(habit.icon, color: colorScheme.primary),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -646,10 +602,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _buildUserCard(
-    ThemeData theme,
-    _SearchUser user,
-  ) {
+  Widget _buildUserCard(ThemeData theme, _SearchUser user) {
     final colorScheme = theme.colorScheme;
 
     return InkWell(
@@ -657,9 +610,7 @@ class _SearchPageState extends State<SearchPage> {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => UserProfilePage(
-              username: user.username,
-            ),
+            builder: (_) => UserProfilePage(username: user.username),
           ),
         );
       },
@@ -680,9 +631,7 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             const CircleAvatar(
               radius: 27,
-              backgroundImage: AssetImage(
-                'assets/images/man.jpg',
-              ),
+              backgroundImage: AssetImage('assets/images/man.jpg'),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -696,10 +645,7 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ),
                   const SizedBox(height: 3),
-                  Text(
-                    '@${user.username}',
-                    style: theme.textTheme.bodySmall,
-                  ),
+                  Text('@${user.username}', style: theme.textTheme.bodySmall),
                   const SizedBox(height: 3),
                   Text(
                     '${user.followers} دنبال‌کننده',
@@ -708,20 +654,14 @@ class _SearchPageState extends State<SearchPage> {
                 ],
               ),
             ),
-            OutlinedButton(
-              onPressed: () {},
-              child: const Text('مشاهده'),
-            ),
+            OutlinedButton(onPressed: () {}, child: const Text('مشاهده')),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRecordCard(
-    ThemeData theme,
-    _SearchRecord record,
-  ) {
+  Widget _buildRecordCard(ThemeData theme, _SearchRecord record) {
     final colorScheme = theme.colorScheme;
 
     return InkWell(
@@ -729,9 +669,7 @@ class _SearchPageState extends State<SearchPage> {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => RecordDetailPage(
-              username: record.username,
-            ),
+            builder: (_) => RecordDetailPage(recordId: 'mock-search-record'),
           ),
         );
       },
@@ -755,9 +693,7 @@ class _SearchPageState extends State<SearchPage> {
               children: [
                 const CircleAvatar(
                   radius: 20,
-                  backgroundImage: AssetImage(
-                    'assets/images/man.jpg',
-                  ),
+                  backgroundImage: AssetImage('assets/images/man.jpg'),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -788,10 +724,7 @@ class _SearchPageState extends State<SearchPage> {
               ],
             ),
             const SizedBox(height: 12),
-            Text(
-              record.caption,
-              style: theme.textTheme.bodyMedium,
-            ),
+            Text(record.caption, style: theme.textTheme.bodyMedium),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -833,28 +766,17 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ),
         const SizedBox(width: 6),
-        Text(
-          '($count)',
-          style: theme.textTheme.bodySmall,
-        ),
+        Text('($count)', style: theme.textTheme.bodySmall),
         const Spacer(),
-        TextButton(
-          onPressed: onSeeAll,
-          child: const Text('مشاهده همه'),
-        ),
+        TextButton(onPressed: onSeeAll, child: const Text('مشاهده همه')),
       ],
     );
   }
 
-  Widget _buildSectionTitle(
-    ThemeData theme, {
-    required String title,
-  }) {
+  Widget _buildSectionTitle(ThemeData theme, {required String title}) {
     return Text(
       title,
-      style: theme.textTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.bold,
-      ),
+      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 
@@ -886,11 +808,7 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 ],
               ),
-              child: Icon(
-                icon,
-                size: 38,
-                color: colorScheme.onSurfaceVariant,
-              ),
+              child: Icon(icon, size: 38, color: colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 20),
             Text(

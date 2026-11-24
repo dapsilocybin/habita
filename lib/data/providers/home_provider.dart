@@ -4,6 +4,62 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class HomeProvider {
   final SupabaseClient _client = Supabase.instance.client;
 
+  Future<HabitPost?> fetchPost(String recordId) async {
+    final record = await _client
+        .from('habit_records')
+        .select('''
+          id,
+          user_id,
+          habit_id,
+          record_number,
+          caption,
+          image_path,
+          frequency_label,
+          created_at,
+          profiles!habit_records_user_id_fkey (
+            username,
+            full_name
+          ),
+          habits!habit_records_habit_id_fkey (
+            name
+          ),
+          post_likes (
+            count
+          ),
+          post_comments (
+            count
+          )
+        ''')
+        .eq('id', recordId)
+        .isFilter('deleted_at', null)
+        .maybeSingle();
+
+    if (record == null) return null;
+
+    final profile = record['profiles'] as Map<String, dynamic>? ?? {};
+    final habit = record['habits'] as Map<String, dynamic>? ?? {};
+    final imagePath = record['image_path'] as String?;
+    final imageUrl = imagePath == null || imagePath.isEmpty
+        ? null
+        : _client.storage.from('habit-record-images').getPublicUrl(imagePath);
+    final createdAt = DateTime.parse(record['created_at'] as String).toLocal();
+
+    return HabitPost(
+      id: record['id'] as String,
+      username: profile['username'] as String? ?? '',
+      userFullName: profile['full_name'] as String? ?? '',
+      habitName: habit['name'] as String? ?? '',
+      frequency: record['frequency_label'] as String? ?? 'نامشخص',
+      recordNumber: (record['record_number'] as num?)?.toInt() ?? 0,
+      time: _formatTimeAgo(createdAt),
+      caption: record['caption'] as String,
+      image: imageUrl,
+      likes: _getRelationCount(record['post_likes']),
+      comments: _getRelationCount(record['post_comments']),
+      createdAt: createdAt,
+    );
+  }
+
   Future<List<HabitPost>> fetchPosts() async {
     // Fetch the latest public records.
     final records = await _client

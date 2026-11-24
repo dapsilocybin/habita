@@ -10,8 +10,11 @@ import 'package:habita/logic/blocs/home/home_bloc.dart';
 import 'package:habita/logic/blocs/home/home_event.dart';
 import 'package:habita/logic/blocs/home/home_state.dart';
 import 'package:habita/presentation/widgets/habita_bottom_navigation.dart';
+import 'package:habita/presentation/widgets/post_card.dart';
 import 'package:habita/presentation/screens/add_record/add_record_page.dart';
 import 'package:habita/presentation/screens/comments/comments_page.dart';
+import 'package:habita/presentation/screens/chats/chats_page.dart';
+import 'package:habita/presentation/screens/record_detail/record_detail_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 String _toPersianDigits(int number) {
@@ -160,11 +163,21 @@ class _HomePageState extends State<HomePage> {
                                   return Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      _PostCard(
+                                      PostCard(
                                         post: post,
                                         isLiked: state.likedPostIds.contains(
                                           post.id,
                                         ),
+                                        onCardTap: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute<void>(
+                                              builder: (_) => RecordDetailPage(
+                                                recordId: post.id,
+                                                initialPost: post,
+                                              ),
+                                            ),
+                                          );
+                                        },
                                         onLike: () {
                                           context.read<HomeBloc>().add(
                                             HomePostLikeToggled(post.id),
@@ -420,6 +433,21 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(width: 10),
           _HeaderIconButton(
+            icon: Icons.chat_bubble_outline_rounded,
+            tooltip: 'گفتگوها',
+            onTap: () {
+              Navigator.of(context)
+                  .push<void>(
+                    MaterialPageRoute(builder: (_) => const ChatsPage()),
+                  )
+                  .then((_) {
+                    if (mounted) homeBloc.add(const HomeFeedRefreshed());
+                  });
+            },
+            shadows: shadows,
+          ),
+          const SizedBox(width: 10),
+          _HeaderIconButton(
             icon: Icons.notifications_none_rounded,
             tooltip: 'اعلان‌ها',
             onTap: () {
@@ -647,6 +675,7 @@ class _RemotePostImageState extends State<_RemotePostImage> {
   }
 }
 
+// ignore: unused_element
 class _PostCard extends StatelessWidget {
   const _PostCard({
     required this.post,
@@ -654,6 +683,7 @@ class _PostCard extends StatelessWidget {
     required this.onLike,
     required this.onComment,
     required this.onMore,
+    required this.onShare,
   });
 
   final HabitPost post;
@@ -661,6 +691,7 @@ class _PostCard extends StatelessWidget {
   final VoidCallback onLike;
   final VoidCallback onComment;
   final VoidCallback onMore;
+  final VoidCallback onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -748,16 +779,7 @@ class _PostCard extends StatelessWidget {
                 const Spacer(),
                 IconButton(
                   tooltip: 'اشتراک‌گذاری',
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'اشتراک‌گذاری در مرحله بعد اضافه می‌شود.',
-                        ),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
+                  onPressed: onShare,
                   icon: Icon(Icons.share_outlined, color: colors.onSurface),
                 ),
               ],

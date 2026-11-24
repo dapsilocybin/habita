@@ -17,4 +17,8 @@ class HomeRepository {
   Future<bool> toggleLike(String recordId) {
     return homeProvider.toggleLike(recordId);
   }
+
+  Future<HabitPost?> fetchPost(String recordId) {
+    return homeProvider.fetchPost(recordId);
+  }
 }

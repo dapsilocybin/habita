@@ -24,7 +24,8 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
       username: 'sara.m',
       name: 'سارا محمدی',
       habit: 'مطالعه روزانه',
-      caption: 'امروز ۳۰ صفحه مطالعه کردم. کم‌کم این عادت داره تبدیل به بخشی از روزم میشه.',
+      caption:
+          'امروز ۳۰ صفحه مطالعه کردم. کم‌کم این عادت داره تبدیل به بخشی از روزم میشه.',
       time: '۱ ساعت پیش',
       likes: 327,
       comments: 41,
@@ -33,7 +34,8 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
       username: 'negar.k',
       name: 'نگار کریمی',
       habit: 'یادگیری زبان',
-      caption: 'امروز فقط ۲۰ دقیقه تمرین کردم، ولی مهم اینه که زنجیره رو نشکنم.',
+      caption:
+          'امروز فقط ۲۰ دقیقه تمرین کردم، ولی مهم اینه که زنجیره رو نشکنم.',
       time: '۳ ساعت پیش',
       likes: 241,
       comments: 28,
@@ -42,7 +44,8 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
       username: 'mohammad.a',
       name: 'محمد احمدی',
       habit: 'پیاده‌روی روزانه',
-      caption: 'بعد از کار یک پیاده‌روی کوتاه داشتم. انرژی خیلی بیشتری پیدا کردم.',
+      caption:
+          'بعد از کار یک پیاده‌روی کوتاه داشتم. انرژی خیلی بیشتری پیدا کردم.',
       time: '۵ ساعت پیش',
       likes: 96,
       comments: 12,
@@ -82,19 +85,13 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
               itemCount: _records.length,
               separatorBuilder: (_, __) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
-                return _buildRecordCard(
-                  context,
-                  _records[index],
-                );
+                return _buildRecordCard(context, _records[index]);
               },
             ),
     );
   }
 
-  Widget _buildRecordCard(
-    BuildContext context,
-    _FollowingRecord record,
-  ) {
+  Widget _buildRecordCard(BuildContext context, _FollowingRecord record) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -122,9 +119,8 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => RecordDetailPage(
-                  username: record.username,
-                ),
+                builder: (_) =>
+                    RecordDetailPage(recordId: 'mock-following-record'),
               ),
             );
           },
@@ -139,9 +135,7 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
                 const SizedBox(height: 12),
                 Text(
                   record.caption,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    height: 1.7,
-                  ),
+                  style: theme.textTheme.bodyLarge?.copyWith(height: 1.7),
                 ),
                 const SizedBox(height: 14),
                 ClipRRect(
@@ -173,14 +167,10 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
                       tooltip: 'ذخیره',
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('رکورد ذخیره شد.'),
-                          ),
+                          const SnackBar(content: Text('رکورد ذخیره شد.')),
                         );
                       },
-                      icon: const Icon(
-                        Icons.bookmark_border_rounded,
-                      ),
+                      icon: const Icon(Icons.bookmark_border_rounded),
                     ),
                     IconButton(
                       tooltip: 'اشتراک‌گذاری',
@@ -191,9 +181,7 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
                           ),
                         );
                       },
-                      icon: const Icon(
-                        Icons.share_outlined,
-                      ),
+                      icon: const Icon(Icons.share_outlined),
                     ),
                   ],
                 ),
@@ -205,10 +193,7 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
     );
   }
 
-  Widget _buildAuthor(
-    BuildContext context,
-    _FollowingRecord record,
-  ) {
+  Widget _buildAuthor(BuildContext context, _FollowingRecord record) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -216,9 +201,7 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
       children: [
         const CircleAvatar(
           radius: 23,
-          backgroundImage: AssetImage(
-            'assets/images/man.jpg',
-          ),
+          backgroundImage: AssetImage('assets/images/man.jpg'),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -250,18 +233,12 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
     );
   }
 
-  Widget _buildHabitChip(
-    BuildContext context,
-    String habit,
-  ) {
+  Widget _buildHabitChip(BuildContext context, String habit) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 7,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(14),
@@ -287,22 +264,14 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
     );
   }
 
-  Widget _buildAction(
-    BuildContext context,
-    IconData icon,
-    String value,
-  ) {
+  Widget _buildAction(BuildContext context, IconData icon, String value) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 19,
-          color: colorScheme.onSurfaceVariant,
-        ),
+        Icon(icon, size: 19, color: colorScheme.onSurfaceVariant),
         const SizedBox(width: 6),
         Text(
           value,
@@ -387,9 +356,7 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
                   Navigator.of(context).pop();
 
                   ScaffoldMessenger.of(this.context).showSnackBar(
-                    const SnackBar(
-                      content: Text('رکورد ذخیره شد.'),
-                    ),
+                    const SnackBar(content: Text('رکورد ذخیره شد.')),
                   );
                 },
               ),
@@ -401,9 +368,7 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
 
                   ScaffoldMessenger.of(this.context).showSnackBar(
                     SnackBar(
-                      content: Text(
-                        '${record.name} دیگر دنبال نمی‌شود.',
-                      ),
+                      content: Text('${record.name} دیگر دنبال نمی‌شود.'),
                     ),
                   );
                 },
@@ -416,9 +381,7 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
 
                   ScaffoldMessenger.of(this.context).showSnackBar(
                     const SnackBar(
-                      content: Text(
-                        'صفحه گزارش به‌زودی باز می‌شود.',
-                      ),
+                      content: Text('صفحه گزارش به‌زودی باز می‌شود.'),
                     ),
                   );
                 },
@@ -454,9 +417,7 @@ class _FollowingFeedPageState extends State<FollowingFeedPage> {
                 ListTile(
                   leading: const Icon(Icons.schedule_rounded),
                   title: const Text('جدیدترین رکوردها'),
-                  subtitle: const Text(
-                    'رکوردهای جدیدتر را بالاتر نمایش بده',
-                  ),
+                  subtitle: const Text('رکوردهای جدیدتر را بالاتر نمایش بده'),
                   onTap: () {
                     Navigator.of(context).pop();
                   },

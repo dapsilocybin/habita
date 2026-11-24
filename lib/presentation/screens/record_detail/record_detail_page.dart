@@ -1,91 +1,100 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:habita/data/models/habit_post_model.dart';
+import 'package:habita/data/providers/home_provider.dart';
+import 'package:habita/data/repositories/home_repository.dart';
+import 'package:habita/logic/blocs/home/home_bloc.dart';
+import 'package:habita/logic/blocs/home/home_event.dart';
+import 'package:habita/logic/blocs/home/home_state.dart';
 import 'package:habita/presentation/screens/comments/comments_page.dart';
+import 'package:habita/presentation/widgets/post_card.dart';
 
-class RecordDetailPage extends StatefulWidget {
-  final String? username;
-  final String? recordId;
+class RecordDetailPage extends StatelessWidget {
+  const RecordDetailPage({super.key, required this.recordId, this.initialPost});
 
-  const RecordDetailPage({super.key, this.username, this.recordId});
+  final String recordId;
+  final HabitPost? initialPost;
 
   @override
-  State<RecordDetailPage> createState() => _RecordDetailPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) =>
+          HomeBloc(homeRepository: HomeRepository(homeProvider: HomeProvider()))
+            ..add(
+              initialPost == null
+                  ? HomePostRequested(recordId)
+                  : HomePostRequested(recordId),
+            ),
+      child: _RecordDetailContent(recordId: recordId, initialPost: initialPost),
+    );
+  }
 }
 
-class _RecordDetailPageState extends State<RecordDetailPage> {
-  bool _isLiked = false;
+class _RecordDetailContent extends StatefulWidget {
+  const _RecordDetailContent({required this.recordId, this.initialPost});
 
-  int _likeCount = 128;
-  int _commentCount = 0;
+  final String recordId;
+  final HabitPost? initialPost;
 
-  final String _habitName = 'باشگاه';
+  @override
+  State<_RecordDetailContent> createState() => _RecordDetailContentState();
+}
 
-  final String _caption =
-      'امروز با اینکه انرژی زیادی نداشتم، خودم را مجبور کردم بروم باشگاه. '
-      'همین که شروع کردم، حالم خیلی بهتر شد. گاهی مهم‌ترین قدم فقط حاضر شدن است.';
+class _RecordDetailContentState extends State<_RecordDetailContent> {
+  bool _isBookmarked = false;
 
-  void _toggleLike() {
-    setState(() {
-      _isLiked = !_isLiked;
-      _likeCount += _isLiked ? 1 : -1;
+  void _openComments(BuildContext context, String recordId) {
+    final bloc = context.read<HomeBloc>();
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: FractionallySizedBox(
+          heightFactor: 1,
+          child: CommentsPage(recordId: recordId),
+        ),
+      ),
+    ).then((_) {
+      if (!mounted) return;
+      bloc.add(HomePostRequested(recordId));
     });
   }
 
-  Future<void> _openComments() async {
-    final recordId = widget.recordId;
-    if (recordId == null) return;
-
-    final commentCount = await Navigator.of(context).push<int>(
-      MaterialPageRoute(builder: (_) => CommentsPage(recordId: recordId)),
-    );
-
-    if (commentCount != null && mounted) {
-      setState(() {
-        _commentCount = commentCount;
-      });
-    }
-  }
-
-  void _shareRecord() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('اشتراک‌گذاری در نسخه نهایی اضافه می‌شود.')),
-    );
-  }
-
-  void _showMoreOptions() {
+  void _showMoreOptions(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (context) {
-        final theme = Theme.of(context);
-
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      builder: (sheetContext) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: SafeArea(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.bookmark_border),
-                  title: const Text('ذخیره رکورد'),
+                  leading: Icon(
+                    _isBookmarked
+                        ? Icons.bookmark_rounded
+                        : Icons.bookmark_border_rounded,
+                  ),
+                  title: Text(_isBookmarked ? 'لغو ذخیره' : 'ذخیره رکورد'),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
+                    setState(() => _isBookmarked = !_isBookmarked);
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.flag_outlined),
                   title: const Text('گزارش رکورد'),
                   onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: Icon(
-                    Icons.close,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  title: const Text('بستن'),
-                  onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
+                    ScaffoldMessenger.of(sheetContext).showSnackBar(
+                      const SnackBar(
+                        content: Text('گزارش رکورد در مرحله بعد فعال می‌شود.'),
+                      ),
+                    );
                   },
                 ),
               ],
@@ -98,230 +107,110 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text('رکورد'),
-        actions: [
-          IconButton(
-            onPressed: _showMoreOptions,
-            icon: const Icon(Icons.more_horiz),
-          ),
-        ],
+      appBar: AppBar(centerTitle: true, title: const Text('رکورد')),
+      body: BlocBuilder<HomeBloc, HomeState>(
+        builder: (context, state) {
+          if (widget.initialPost != null && state is HomeInitial) {
+            return _buildPost(context, widget.initialPost!);
+          }
+
+          if (state is HomeLoading) {
+            if (widget.initialPost != null) {
+              return _buildPost(context, widget.initialPost!);
+            }
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is HomeLoaded) {
+            HabitPost? post;
+            for (final item in state.posts) {
+              if (item.id == widget.recordId) {
+                post = item;
+                break;
+              }
+            }
+            if (post == null) {
+              return _buildUnavailable(context);
+            }
+            return _buildPost(context, post);
+          }
+
+          if (state is HomeError) {
+            if (widget.initialPost != null) {
+              return _buildPost(context, widget.initialPost!);
+            }
+            return _buildUnavailable(context);
+          }
+
+          if (widget.initialPost != null) {
+            return _buildPost(context, widget.initialPost!);
+          }
+
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
-      body: SingleChildScrollView(
+    );
+  }
+
+  Widget _buildPost(BuildContext context, HabitPost post) {
+    final state = context.watch<HomeBloc>().state;
+    final isLiked = state is HomeLoaded && state.likedPostIds.contains(post.id);
+
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 32),
+        child: PostCard(
+          post: post,
+          isLiked: isLiked,
+          isBookmarked: _isBookmarked,
+          onLike: () {
+            context.read<HomeBloc>().add(HomePostLikeToggled(post.id));
+          },
+          onComment: () => _openComments(context, post.id),
+          onMore: () => _showMoreOptions(context),
+          onBookmark: () {
+            setState(() => _isBookmarked = !_isBookmarked);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  _isBookmarked ? 'رکورد ذخیره شد' : 'ذخیره لغو شد',
+                ),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUnavailable(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            _buildAuthorHeader(context),
-            const SizedBox(height: 20),
-            _buildRecordContent(context),
-            const SizedBox(height: 20),
-            _buildPostImage(colorScheme),
-            const SizedBox(height: 20),
-            _buildInteractionSection(context),
-            const SizedBox(height: 16),
-            _buildCommentsPreview(context),
-            const SizedBox(height: 32),
+            Icon(
+              Icons.visibility_off_outlined,
+              size: 48,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'این رکورد حذف شده یا در دسترس نیست.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('بازگشت'),
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildAuthorHeader(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: colorScheme.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: colorScheme.shadow.withOpacity(0.16),
-                  offset: const Offset(6, 6),
-                  blurRadius: 12,
-                ),
-                BoxShadow(
-                  color: colorScheme.surfaceContainerHighest.withOpacity(0.8),
-                  offset: const Offset(-5, -5),
-                  blurRadius: 10,
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(3),
-            child: ClipOval(
-              child: Image.asset('assets/images/man.jpg', fit: BoxFit.cover),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.username ?? 'مصطفی',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  '@${widget.username ?? 'mostafa'}',
-                  textDirection: TextDirection.ltr,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          _buildHabitChip(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHabitChip(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        _habitName,
-        style: theme.textTheme.labelMedium?.copyWith(
-          color: colorScheme.onPrimaryContainer,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecordContent(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            _caption,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: colorScheme.onSurface,
-              height: 1.8,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'امروز، ۲ ساعت پیش',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPostImage(ColorScheme colorScheme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: AspectRatio(
-          aspectRatio: 4 / 3,
-          child: Image.asset('assets/images/post.jpg', fit: BoxFit.cover),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInteractionSection(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              IconButton(
-                onPressed: _toggleLike,
-                icon: Icon(
-                  _isLiked ? Icons.favorite : Icons.favorite_border,
-                  color: _isLiked
-                      ? colorScheme.error
-                      : colorScheme.onSurfaceVariant,
-                ),
-              ),
-              Text('$_likeCount', style: theme.textTheme.bodyMedium),
-              const SizedBox(width: 12),
-              IconButton(
-                onPressed: widget.recordId == null ? null : _openComments,
-                icon: const Icon(Icons.chat_bubble_outline),
-              ),
-              Text('$_commentCount', style: theme.textTheme.bodyMedium),
-              const Spacer(),
-              IconButton(
-                onPressed: _shareRecord,
-                icon: const Icon(Icons.share_outlined),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.bookmark_border),
-              ),
-            ],
-          ),
-          const Divider(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCommentsPreview(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'نظرات',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextButton(
-            onPressed: widget.recordId == null ? null : _openComments,
-            child: const Text('مشاهده همه نظرات'),
-          ),
-        ],
       ),
     );
   }
